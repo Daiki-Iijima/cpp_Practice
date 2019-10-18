@@ -76,11 +76,15 @@ int main(int argc, char *argv[])
     //  GLUT_DEPTH  : デプス(Z)バッファを加える
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH);
 
-    //
+    //  ウィンドウ生成(ウィンドウは表示はされない)
+    //  ウィンドウ名を示す ASCll文字列
     glutCreateWindow("Wire_teapot");
+
     glutReshapeFunc(resize);
     glutDisplayFunc(draw);
     setup();
+
+    //  イベント処理のループに入る(ウィンドウを表示させる)
     glutMainLoop();
     return 0;
 }
