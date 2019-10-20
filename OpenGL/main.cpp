@@ -1,6 +1,11 @@
 #include <iostream>
-#include <OpenGL/OpenGL.h>
-#include <GLUT/GLUT.h>
+
+//	Macの場合ここ２つのコメントアウトを外す
+// #include <OpenGL/OpenGL.h>
+// #include <GLUT/GLUT.h>
+
+//	Ubuntuの場合コメントアウト
+#include <GL/glut.h>
 
 void draw(void)
 {
