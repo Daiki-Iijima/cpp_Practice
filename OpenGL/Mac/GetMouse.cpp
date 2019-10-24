@@ -42,15 +42,28 @@ static void DrawString(std::string str, int w, int h, int x0, int y0)
 
 void display(void)
 {
-	//	塗りつぶす色を指定
-	glClearColor(0.0, 1.0, 1.0, 1.0);
+	//	背景色を指定
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	string str = "MousePos X: ";
+	//	各種値を「string」型に変換
+	string mouseX, mouseY, mouseLeft, mouseRight, mouseMiddle;
+	mouseX = to_string(MouseX);
+	mouseY = to_string(MouseY);
+	mouseLeft = M_left ? "True" : "false";
+	mouseRight = M_right ? "True" : "false";
+	mouseMiddle = M_middle ? "True" : "false";
 
+	//	文字の色指定
 	glColor3d(1.0, 1.0, 1.0);
-	DrawString(str, WIDTH, HEIGHT, 10, 10);
+
+	//	文字列としてウィンドウに描画
+	DrawString(mouseX, WIDTH, HEIGHT, 10, 10);
+	DrawString(mouseY, WIDTH, HEIGHT, 10, 25);
+	DrawString(mouseLeft, WIDTH, HEIGHT, 10, 40);
+	DrawString(mouseRight, WIDTH, HEIGHT, 10, 55);
+	DrawString(mouseMiddle, WIDTH, HEIGHT, 10, 70);
 
 	//	リフレッシュ
 	glFlush();
@@ -120,14 +133,17 @@ void MouseWheel(int wheel_number, int direction, int x, int y)
 }
 int main(int argc, char *argv[])
 {
+	//	位置、サイズ指定
 	glutInitWindowPosition(100, 100);
 	glutInitWindowSize(WIDTH, HEIGHT);
+
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	glutCreateWindow("マウスイベント");
+	glutInitDisplayMode(GLUT_RGBA);
+	glutCreateWindow("Get Mouse");
 	glutDisplayFunc(display);
 	glutMouseFunc(mouse);
 	glutMotionFunc(drag);
+
 	glutPassiveMotionFunc(passive);
 	// glutMouseWheelFunc(MouseWheel); //ホイールコールバック(glutfreeだと使えるらしい)
 	glutIdleFunc(idle);
