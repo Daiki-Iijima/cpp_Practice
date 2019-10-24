@@ -44,6 +44,12 @@ void display(void)
 	glFlush();
 }
 
+void Init()
+{
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glOrtho(0, WIDTH, HEIGHT, 0, -1, 1);
+}
+
 int main(int argc, char *argv[])
 {
 	//	ウィンドウの生成位置を指定
@@ -60,8 +66,7 @@ int main(int argc, char *argv[])
 
 	glutDisplayFunc(display);
 
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glOrtho(0, WIDTH, HEIGHT, 0, -1, 1);
+	Init();
 
 	glutMainLoop();
 
