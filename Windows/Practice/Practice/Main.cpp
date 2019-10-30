@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include "glm/glm.hpp"	//	*glut.hより先に定義する必要がある
 #include "glut.h"
 
-int windowWidth = 800;		//	ウィンドウの横幅
-int windowHeight = 600;		//	ウィンドウの高さ
+using namespace glm;
+
+ivec2 windowSize = {800,600};	//	ウィンドウのサイズを定義
 
 bool keys[256];		//	どのキーが押されているかを保持する
 
@@ -16,8 +18,8 @@ void display(void)
 	glMatrixMode(GL_PROJECTION);	//	射影モードを変更する
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 	gluOrtho2D(						//	2次元空間を定義(Ortho:正射影)
-		0, windowWidth,				//	left,right
-		windowHeight, 0				//	bottom,top
+		0, windowSize.x,				//	left,right
+		windowSize.y, 0				//	bottom,top
 	);
 
 	//	ティーポットモデルに対する変換
@@ -35,7 +37,7 @@ void display(void)
 
 
 	glTranslatef(	//	ティーポットの位置を変更する
-		windowWidth / 2, windowHeight / 2, 0	//	x,y,z
+		windowSize.x / 2, windowSize.y / 2, 0	//	x,y,z
 	);
 
 	glRotatef(
@@ -70,8 +72,7 @@ void reshape(int width, int height)
 		width, height	//	サイズ(w,h)
 	);
 
-	windowWidth = width;
-	windowHeight = height;
+	windowSize = ivec2(width, height);	//	リサイズされた値でサイズ定数を書き換える
 }
 
 void keybord(unsigned char key, int x, int y)
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GL_DOUBLE);			//	ダブルバッファを使用する(やらない場合シングルバッファ)
 
 	glutInitWindowPosition(640, 0);			//	Window位置(やらなくてもいい)
-	glutInitWindowSize(windowWidth, windowHeight);			//	Window大きさ(やらなくてもいい)
+	glutInitWindowSize(windowSize.x, windowSize.y);			//	Window大きさ(やらなくてもいい)
 
 	glutCreateWindow("多々タイトル");		//	Windowのタイトル設定
 	glutDisplayFunc(display);				//	描画が必要になったら呼ばれるコールバックの設定
