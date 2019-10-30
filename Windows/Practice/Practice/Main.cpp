@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include "glut.h"
 
-int windowWidth = 800;
-int windowHeight = 600;
+int windowWidth = 800;		//	ウィンドウの横幅
+int windowHeight = 600;		//	ウィンドウの高さ
+
+bool keys[256];		//	どのキーが押されているかを保持する
 
 //	描画が必要になったら
 void display(void)
@@ -25,7 +27,12 @@ void display(void)
 	//	一つ上の処理で行列を初期化しているので1度変えたものを0度に戻してしまうため下のglRotatefの回転角度に1をハードコードしても回転しない
 	//	変数に角度を蓄積させて回転させる
 	static float angle;
-	angle += 1;
+	//angle += 1;
+
+	//	キーが押されたときに回転できるように
+	if (keys['d'])	angle += 1;
+	if (keys['a'])	angle -= 1;
+
 
 	glTranslatef(	//	ティーポットの位置を変更する
 		windowWidth / 2, windowHeight / 2, 0	//	x,y,z
@@ -73,11 +80,15 @@ void keybord(unsigned char key, int x, int y)
 		exit(0);
 
 	printf("keybord: %d,(%#x)\n", key, key);
+
+	keys[key] = true;	//	キーが押された
 }
 
 void keybordUp(unsigned char key, int x, int y)
 {
 	printf("keybordUp: %d,(%#x)\n", key, key);
+
+	keys[key] = false;	//	キーが離された
 }
 
 int main(int argc, char *argv[])
