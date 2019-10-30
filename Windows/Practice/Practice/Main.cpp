@@ -56,7 +56,7 @@ void idle(void)
 //	ウィンドウサイズが変更されたときに呼ぶ
 void reshape(int width, int height)
 {
-	printf("reshape:width%d height:%d\n", width, height);
+	//printf("reshape:width%d height:%d\n", width, height);
 
 	glViewport(			//	ビューポートを更新(更新しないと指定サイズより大きくなった時に表示できずに切れてしまう)
 		0, 0,			//	座標(x,y)
@@ -65,6 +65,19 @@ void reshape(int width, int height)
 
 	windowWidth = width;
 	windowHeight = height;
+}
+
+void keybord(unsigned char key, int x, int y)
+{
+	if (key == 0x1b)	//	Escapeキーで終了
+		exit(0);
+
+	printf("keybord: %d,(%#x)\n", key, key);
+}
+
+void keybordUp(unsigned char key, int x, int y)
+{
+	printf("keybordUp: %d,(%#x)\n", key, key);
 }
 
 int main(int argc, char *argv[])
@@ -82,6 +95,10 @@ int main(int argc, char *argv[])
 	glutIdleFunc(idle);						//	GLUTの手が空いた時に呼ばれるコールバックの設定
 
 	glutReshapeFunc(reshape);				//	Windowのサイズが変わったら呼ばれるコールバックの設定
+
+	glutKeyboardFunc(keybord);				//	キーボードイベントを取得
+	glutIgnoreKeyRepeat(GL_TRUE);			//	キーボードの押しっぱなし状態を無効にすることをTrueにする
+	glutKeyboardUpFunc(keybordUp);			//	キーボードが離されたときイベント
 
 	glutMainLoop();							//	処理をglutに委託する(コールバック系はこのメソッドより前に書く)
 
