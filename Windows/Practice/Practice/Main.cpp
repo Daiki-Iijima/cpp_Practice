@@ -16,9 +16,16 @@ void display(void)
 	//glFlush();			//	シングルバッファの場合
 }
 
-void idle(void)
+void timer(int value)
 {
 	glutPostRedisplay();	//	再描画命令
+
+	//	再帰的に呼び出す
+	glutTimerFunc(			//	指定時間後に起動するタイマー
+		1000/60,			//	何ms後にタイマーを起動するか(1000ms = 1s)
+		timer,				//	起動するメソッド	
+		0					//	渡す値
+	);
 }
 
 int main(int argc, char *argv[])
@@ -33,8 +40,12 @@ int main(int argc, char *argv[])
 	glutCreateWindow("多々タイトル");		//	Windowのタイトル設定
 	glutDisplayFunc(display);				//	描画が必要になったら呼ばれるコールバックの設定
 
-	glutIdleFunc(idle);						//	GLUTの手が空いた時に呼ばれる
-
+	glutTimerFunc(							//	指定時間後に起動するタイマー
+		0,		//	何ms後にタイマーを起動するか(1000ms = 1s)
+		timer,	//	起動するメソッド	
+		0		//	渡す値
+	);
+	
 	glutMainLoop();							//	処理をglutに委託する(コールバック系はこのメソッドより前に書く)
 
 	
