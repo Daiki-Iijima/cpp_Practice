@@ -2,6 +2,8 @@
 #include "glm/glm.hpp"	//	*glut.hより先に定義する必要がある
 #include "glut.h"
 
+#include "font.h"
+
 using namespace glm;
 
 ivec2 windowSize = {800,600};	//	ウィンドウのサイズを定義
@@ -52,6 +54,15 @@ void display(void)
 	
 
 	glutWireTeapot(1);	//	ティーポットを描画する
+	
+	//	======= 文字列の描画(font.cpp) ======
+	fontBegin();
+	fontSetColor(0, 0xff, 0);
+	fontSetPosition(angle, windowSize.y - fontGetSize() *2);
+	fontSetSize(FONT_DEFAULT_SIZE/2);
+	fontDraw("angle:%f",angle);
+	fontEnd();
+	//	=====================================
 
 	glutSwapBuffers();	//	ダブルバッファの表と裏を切り替える(スワップする)
 	//glFlush();			//	シングルバッファの場合
@@ -80,14 +91,14 @@ void keybord(unsigned char key, int x, int y)
 	if (key == 0x1b)	//	Escapeキーで終了
 		exit(0);
 
-	printf("keybord: %d,(%#x)\n", key, key);
+	//printf("keybord: %d,(%#x)\n", key, key);
 
 	keys[key] = true;	//	キーが押された
 }
 
 void keybordUp(unsigned char key, int x, int y)
 {
-	printf("keybordUp: %d,(%#x)\n", key, key);
+	//printf("keybordUp: %d,(%#x)\n", key, key);
 
 	keys[key] = false;	//	キーが離された
 }
