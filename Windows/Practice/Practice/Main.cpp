@@ -11,9 +11,8 @@ ivec2 windowSize = { 800,600 };	//	ウィンドウのサイズを定義
 
 bool keys[256];		//	どのキーが押されているかを保持する
 
-Rect rect = Rect(vec2(100, 100), vec2(100, 100));
-
-vec2 point = vec2(windowSize.x / 2, windowSize.y / 2);
+Rect rect1 = Rect(vec2(100, 100), vec2(100, 200));
+Rect rect2 = Rect(vec2(windowSize.x / 2, windowSize.y / 2), vec2(200, 100));
 
 //	描画が必要になったら
 void display(void)
@@ -34,23 +33,16 @@ void display(void)
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
 
-	if (rect.intersect(point))
+	if (rect1.intersect(rect2))
 		glColor3ub(0xff, 0x00, 0x00);
 	else
 		glColor3ub(0x00, 0x00, 0xff);
 	//	矩形の描画
-	rect.draw();
+	rect1.draw();
 
-	glColor3ub(0xff, 0xff, 0xff);
+	glColor3ub(0x00, 0xff, 0x00);
 
-	glPointSize(8);
-	glBegin(GL_POINTS);
-	{
-		glVertex2f(point.x, point.y);
-	}
-	glEnd();
-
-	
+	rect2.draw();
 
 	//	======= 文字列の描画(font.cpp) ======
 	fontBegin();
@@ -68,10 +60,10 @@ void idle(void)
 {
 	//	描画しているものを動かす場合、ここで処理する
 	float f = 5;
-	if (keys['w'])	rect.m_position.y -= f;
-	if (keys['s'])	rect.m_position.y += f;
-	if (keys['a'])	rect.m_position.x -= f;
-	if (keys['d'])	rect.m_position.x += f;
+	if (keys['w'])	rect1.m_position.y -= f;
+	if (keys['s'])	rect1.m_position.y += f;
+	if (keys['a'])	rect1.m_position.x -= f;
+	if (keys['d'])	rect1.m_position.x += f;
 
 	glutPostRedisplay();	//	再描画命令
 }

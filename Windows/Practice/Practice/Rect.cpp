@@ -25,11 +25,21 @@ bool Rect::intersect(vec2 const& _point)
 		(_point.x < m_position.x + m_size.x) &&
 		(_point.y >= m_position.y) &&
 		(_point.y < m_position.y + m_size.y)
-
 		)
-	{
 		return true;
-	}
+
+	return false;
+}
+
+bool Rect::intersect(Rect const& _rect)
+{
+	if (
+		(m_position.x + m_size.x >= _rect.m_position.x) &&
+		(m_position.x < _rect.m_position.x + _rect.m_size.x) &&
+		(m_position.y + m_size.y >= _rect.m_position.y) &&
+		(m_position.y < _rect.m_position.y + _rect.m_size.y)
+		)
+		return true;
 
 	return false;
 }
