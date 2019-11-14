@@ -3,12 +3,15 @@
 #include "glut.h"
 
 #include "font.h"
+#include "Rect.h"
 
 using namespace glm;
 
-ivec2 windowSize = {800,600};	//	ウィンドウのサイズを定義
+ivec2 windowSize = { 800,600 };	//	ウィンドウのサイズを定義
 
 bool keys[256];		//	どのキーが押されているかを保持する
+
+Rect rect = Rect(vec2(100, 100), vec2(100, 100));
 
 //	描画が必要になったら
 void display(void)
@@ -28,39 +31,14 @@ void display(void)
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
-	//	一つ上の処理で行列を初期化しているので1度変えたものを0度に戻してしまうため下のglRotatefの回転角度に1をハードコードしても回転しない
-	//	変数に角度を蓄積させて回転させる
-	static float angle;
-	//angle += 1;
+	//	矩形の描画
+	rect.draw();
 
-	//	キーが押されたときに回転できるように
-	if (keys['d'])	angle += 1;
-	if (keys['a'])	angle -= 1;
-
-
-	glTranslatef(	//	ティーポットの位置を変更する
-		windowSize.x / 2, windowSize.y / 2, 0	//	x,y,z
-	);
-
-	glRotatef(
-		angle,		//	回転する角度
-		0, 0, 1	//	回転軸
-	);
-
-	glScalef(		//	ティーポットの大きさを変更する	
-		256, 256, 1	//	x,y,z
-	);
-
-	
-
-	glutWireTeapot(1);	//	ティーポットを描画する
-	
 	//	======= 文字列の描画(font.cpp) ======
 	fontBegin();
 	fontSetColor(0, 0xff, 0);
-	fontSetPosition(angle, windowSize.y - fontGetSize() *2);
-	fontSetSize(FONT_DEFAULT_SIZE/2);
-	fontDraw("angle:%f",angle);
+	fontSetPosition(0, windowSize.y - fontGetSize() * 2);
+	fontSetSize(FONT_DEFAULT_SIZE / 2);
 	fontEnd();
 	//	=====================================
 
@@ -70,6 +48,12 @@ void display(void)
 
 void idle(void)
 {
+	float f = 5;
+	if (keys['w'])	rect.m_position.y -= f;
+	if (keys['s'])	rect.m_position.y += f;
+	if (keys['a'])	rect.m_position.x -= f;
+	if (keys['d'])	rect.m_position.x += f;
+
 	glutPostRedisplay();	//	再描画命令
 }
 
