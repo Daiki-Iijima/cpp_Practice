@@ -9,5 +9,6 @@ struct Rect {
 	vec2 m_size;
 
 	Rect(vec2 const& _position, vec2 const& _size);
-	void draw();
+	void draw();	//	•`‰æ
+	bool intersect(vec2 const& _point);	//	“n‚³‚ê‚½ˆÊ’u‚Æ‚Ì“–‚½‚è”»’è
 };
