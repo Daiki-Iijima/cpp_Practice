@@ -115,11 +115,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ball.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Rect.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ball.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="Rect.h" />
   </ItemGroup>

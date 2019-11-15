@@ -1,9 +1,15 @@
 #include <stdio.h>
+#include <time.h>
 #include "glm/glm.hpp"	//	*glut.hより先に定義する必要がある
 #include "glut.h"
 
 #include "font.h"
 #include "Rect.h"
+
+#include "Ball.h"
+
+
+#define	BALL_MAX 256
 
 using namespace glm;
 
@@ -11,8 +17,7 @@ ivec2 windowSize = { 800,600 };	//	ウィンドウのサイズを定義
 
 bool keys[256];		//	どのキーが押されているかを保持する
 
-Rect rect1 = Rect(vec2(100, 100), vec2(100, 200));
-Rect rect2 = Rect(vec2(windowSize.x / 2, windowSize.y / 2), vec2(200, 100));
+Ball balls[BALL_MAX];
 
 //	描画が必要になったら
 void display(void)
@@ -32,20 +37,27 @@ void display(void)
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
+	unsigned char colors[6][3] = {
+		{0xff,0x00,0x00},
+		{0x00,0xff,0x00},
+		{0x00,0x00,0xff},
+		{0xff,0xff,0x00},
+		{0x00,0xff,0xff},
+		{0xff,0x00,0xff},
+	};
 
-	if (rect1.intersect(rect2))
-		glColor3ub(0xff, 0x00, 0x00);
-	else
-		glColor3ub(0x00, 0x00, 0xff);
-	//	矩形の描画
-	rect1.draw();
+	for (int i = 0; i < BALL_MAX; i++)
+	{
+		glColor3ub(					//	色を設定
+			colors[i % 6][0],
+			colors[i % 6][1],
+			colors[i % 6][2]
+			);
 
-	glColor3ub(0x00, 0xff, 0x00);
-
-	rect2.draw();
-
+		balls[i].draw();			//	ボールを描画
+	}
 	//	======= 文字列の描画(font.cpp) ======
-	
+
 	fontBegin();
 	fontSetColor(0, 0xff, 0);
 	fontSetSize(FONT_DEFAULT_SIZE);
@@ -54,11 +66,11 @@ void display(void)
 	float y = windowSize.y - lineHeight * 2;
 	fontSetPosition(0, y);
 	fontSetFontWeight(fontGetWeightMin());
-	fontDraw("min:%f", fontGetWeightMin());
+	//fontDraw("min:%f", fontGetWeightMin());
 
-	fontSetPosition(0, y+=lineHeight);
+	fontSetPosition(0, y += lineHeight);
 	fontSetFontWeight(fontGetWeightMax());
-	fontDraw("max%f", fontGetWeightMax());
+	//fontDraw("max%f", fontGetWeightMax());
 
 	fontEnd();
 	//	=====================================
@@ -69,12 +81,35 @@ void display(void)
 
 void idle(void)
 {
-	//	描画しているものを動かす場合、ここで処理する
-	float f = 5;
-	if (keys['w'])	rect1.m_position.y -= f;
-	if (keys['s'])	rect1.m_position.y += f;
-	if (keys['a'])	rect1.m_position.x -= f;
-	if (keys['d'])	rect1.m_position.x += f;
+	for (int i = 0; i < BALL_MAX; i++)
+	{
+		balls[i].update();
+
+		if (balls[i].m_position.x >= windowSize.x)
+		{
+			balls[i].m_position = balls[i].m_lastposition;
+			balls[i].m_speed.x = -fabs(balls[i].m_speed.x);	//	絶対値に変換してから、マイナスに変換
+		}
+
+		if (balls[i].m_position.x < 0)
+		{
+			balls[i].m_position = balls[i].m_lastposition;
+			balls[i].m_speed.x = fabs(balls[i].m_speed.x);	//	絶対値に変換
+		}
+
+
+		if (balls[i].m_position.y >= windowSize.y)
+		{
+			balls[i].m_position = balls[i].m_lastposition;
+			balls[i].m_speed.y = -fabs(balls[i].m_speed.y);	//	絶対値に変換してから、マイナスに変換
+		}
+
+		if (balls[i].m_position.y < 0)
+		{
+			balls[i].m_position = balls[i].m_lastposition;
+			balls[i].m_speed.y = fabs(balls[i].m_speed.y);	//	絶対値に変換してから、マイナスに変換
+		}
+	}
 
 	glutPostRedisplay();	//	再描画命令
 }
@@ -111,6 +146,25 @@ void keybordUp(unsigned char key, int x, int y)
 
 int main(int argc, char *argv[])
 {
+	srand(time(NULL));		//	ランダム用変数を現在の時間で初期化
+
+	for (int i = 0; i < BALL_MAX; i++)
+	{
+		balls[i].m_position =					//	位置を設定
+				vec2(
+				rand() % windowSize.x,			//	x:0~1の乱数で求める 
+				rand() % windowSize.y			//	y:0~1の乱数で求める
+			);
+
+		balls[i].m_speed =						//	ボールのスピードを設定
+			normalize(							//	スピードを一定にするために正規化
+				vec2(
+				(float)rand() / RAND_MAX -.5f,		//	x:0~1の乱数で求める 
+				(float)rand() / RAND_MAX -.5f		//	y:0~1の乱数で求める
+				)
+			);
+	}
+
 	glutInit(&argc, argv);
 
 	glutInitDisplayMode(GL_DOUBLE);			//	ダブルバッファを使用する(やらない場合シングルバッファ)
