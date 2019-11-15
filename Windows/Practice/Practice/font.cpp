@@ -87,11 +87,15 @@ float fontGetWeightMax()
 	return weight[1];
 }
 
-void fontSetFontWeight(float _weight)
+void fontSetWeight(float _weight)
 {
 	weight = _weight;
 }
 
+float fontGetWeight()
+{
+	return weight;
+}
 
 void fontSetColor(unsigned char _red, unsigned char _green, unsigned char _blue)
 {
@@ -119,19 +123,25 @@ void fontDraw(const char *_format, ...)
 
 	glColor3ub(color[0], color[1], color[2]);	//	フォントの色を変更
 
+	char* p = str;
+
 	glPushMatrix();						//	位置、大きさ(上下反転)を変更したいので行列を保存 
 	{
 		glTranslatef(position.x, position.y + size, 0);		//	位置を変更
 		float s = size / FONT_DEFAULT_SIZE;
 		glScalef(s, -s, s);									//	大きさを変更
 
-		for (char* p = str; *p != '\0'; p++)		//	*pが\0(空文字)では無ければ動き続ける
+		for (; *p != '\0' && *p != '\n'; p++)				//	*pが\0(空文字)か\n(改行コード)の場合ループを終わる
 			glutStrokeCharacter(GLUT_STROKE_ROMAN, *p);		//	文字を描く
 
 	}
 	glPopMatrix();						//	元に戻す
 
-	printf("%s\n", str);
+	if (*p == '\n')	//	改行コードで終了していた場合
+	{
+		glTranslatef(0, size + weight * 2, 0);	//	文字描画位置を下にずらす
+		fontDraw(++p);				//	再度描画命令を出す(再帰処理)
+	}
 }
 
 

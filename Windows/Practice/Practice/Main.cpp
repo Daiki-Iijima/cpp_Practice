@@ -68,14 +68,11 @@ void display(void)
 	fontSetSize(FONT_DEFAULT_SIZE);
 
 	float lineHeight = fontGetSize() * 1.5;
-	float y = windowSize.y - lineHeight * 2;
-	fontSetPosition(0, y);
-	fontSetFontWeight(fontGetWeightMin());
-	//fontDraw("min:%f", fontGetWeightMin());
+	float y = fontGetWeight() /2;
 
-	fontSetPosition(0, y += lineHeight);
-	fontSetFontWeight(fontGetWeightMax());
-	//fontDraw("max%f", fontGetWeightMax());
+	fontSetPosition(0, y);
+	fontSetWeight(fontGetWeightMax());
+	fontDraw("AA\nBBB\nCCCC\nEEEEE\n");
 
 	fontEnd();
 	//	=====================================
