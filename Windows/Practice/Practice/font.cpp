@@ -13,6 +13,8 @@ static float size = FONT_DEFAULT_SIZE;
 
 static unsigned char color[3];
 
+static float weight = 1;
+
 void fontBegin()
 {
 	glPushMatrix();						//	Œ»İİ’è‚³‚ê‚Ä‚¢‚és—ñî•ñ‚ğ•Û
@@ -63,6 +65,34 @@ float fontGetSize()
 	return size;
 }
 
+float fontGetWeightMin()
+{
+	GLfloat weight[2];
+	glGetFloatv(
+		GL_LINE_WIDTH_RANGE,
+		weight
+	);
+
+	return weight[0];
+}
+
+float fontGetWeightMax()
+{
+	GLfloat weight[2];
+	glGetFloatv(
+		GL_LINE_WIDTH_RANGE,
+		weight
+	);
+
+	return weight[1];
+}
+
+void fontSetFontWeight(float _weight)
+{
+	weight = _weight;
+}
+
+
 void fontSetColor(unsigned char _red, unsigned char _green, unsigned char _blue)
 {
 	color[0] = _red;
@@ -82,6 +112,8 @@ void fontDraw(const char *_format, ...)
 		_format,
 		argList
 	);
+
+	glLineWidth(weight);		//	ü‚Ì‘¾‚³‚ğİ’è
 
 	va_end(argList);
 

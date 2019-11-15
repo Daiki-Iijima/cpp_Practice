@@ -45,10 +45,21 @@ void display(void)
 	rect2.draw();
 
 	//	======= •¶Žš—ñ‚Ì•`‰æ(font.cpp) ======
+	
 	fontBegin();
 	fontSetColor(0, 0xff, 0);
-	fontSetPosition(0, windowSize.y - fontGetSize() * 2);
-	fontSetSize(FONT_DEFAULT_SIZE / 2);
+	fontSetSize(FONT_DEFAULT_SIZE);
+
+	float lineHeight = fontGetSize() * 1.5;
+	float y = windowSize.y - lineHeight * 2;
+	fontSetPosition(0, y);
+	fontSetFontWeight(fontGetWeightMin());
+	fontDraw("min:%f", fontGetWeightMin());
+
+	fontSetPosition(0, y+=lineHeight);
+	fontSetFontWeight(fontGetWeightMax());
+	fontDraw("max%f", fontGetWeightMax());
+
 	fontEnd();
 	//	=====================================
 
