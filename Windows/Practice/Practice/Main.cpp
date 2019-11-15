@@ -7,9 +7,10 @@
 #include "Rect.h"
 
 #include "Ball.h"
+#include "Paddle.h"
 
 
-#define	BALL_MAX 256
+#define	BALL_MAX 2
 
 using namespace glm;
 
@@ -18,6 +19,7 @@ ivec2 windowSize = { 800,600 };	//	ウィンドウのサイズを定義
 bool keys[256];		//	どのキーが押されているかを保持する
 
 Ball balls[BALL_MAX];
+Paddle paddle;
 
 //	描画が必要になったら
 void display(void)
@@ -37,7 +39,10 @@ void display(void)
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
-	unsigned char colors[6][3] = {
+	glColor3ub(0xff, 0xff, 0xff);
+	paddle.draw();
+
+	unsigned char colors[6][3] = {	//	ボールで使用する予定の色パレットを作成
 		{0xff,0x00,0x00},
 		{0x00,0xff,0x00},
 		{0x00,0x00,0xff},
@@ -52,7 +57,7 @@ void display(void)
 			colors[i % 6][0],
 			colors[i % 6][1],
 			colors[i % 6][2]
-			);
+		);
 
 		balls[i].draw();			//	ボールを描画
 	}
@@ -85,6 +90,12 @@ void idle(void)
 	{
 		balls[i].update();
 
+		if (paddle.intersectBall(balls[i]))
+		{
+			balls[i].m_position = balls[i].m_lastposition;
+			balls[i].m_speed.x *= -1;
+		}
+
 		if (balls[i].m_position.x >= windowSize.x)
 		{
 			balls[i].m_position = balls[i].m_lastposition;
@@ -110,7 +121,6 @@ void idle(void)
 			balls[i].m_speed.y = fabs(balls[i].m_speed.y);	//	絶対値に変換してから、マイナスに変換
 		}
 	}
-
 	glutPostRedisplay();	//	再描画命令
 }
 
@@ -144,6 +154,11 @@ void keybordUp(unsigned char key, int x, int y)
 	keys[key] = false;	//	キーが離された
 }
 
+void passiveMotion(int _x, int _y)
+{
+	paddle.m_position = vec2(_x, _y);
+}
+
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));		//	ランダム用変数を現在の時間で初期化
@@ -151,7 +166,7 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < BALL_MAX; i++)
 	{
 		balls[i].m_position =					//	位置を設定
-				vec2(
+			vec2(
 				rand() % windowSize.x,			//	x:0~1の乱数で求める 
 				rand() % windowSize.y			//	y:0~1の乱数で求める
 			);
@@ -159,11 +174,13 @@ int main(int argc, char *argv[])
 		balls[i].m_speed =						//	ボールのスピードを設定
 			normalize(							//	スピードを一定にするために正規化
 				vec2(
-				(float)rand() / RAND_MAX -.5f,		//	x:0~1の乱数で求める 
-				(float)rand() / RAND_MAX -.5f		//	y:0~1の乱数で求める
+				(float)rand() / RAND_MAX - .5f,		//	x:0~1の乱数で求める 
+					(float)rand() / RAND_MAX - .5f		//	y:0~1の乱数で求める
 				)
 			);
 	}
+
+	paddle.m_height = 300;
 
 	glutInit(&argc, argv);
 
@@ -182,6 +199,9 @@ int main(int argc, char *argv[])
 	glutKeyboardFunc(keybord);				//	キーボードイベントを取得
 	glutIgnoreKeyRepeat(GL_TRUE);			//	キーボードの押しっぱなし状態を無効にすることをTrueにする
 	glutKeyboardUpFunc(keybordUp);			//	キーボードが離されたときイベント
+
+	glutPassiveMotionFunc(passiveMotion);	//	マウスの移動イベントを取得
+	//glutMotionFunc(motion);					//	マウスがクリックされた状態の移動イベントを取得
 
 	glutMainLoop();							//	処理をglutに委託する(コールバック系はこのメソッドより前に書く)
 
