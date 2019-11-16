@@ -9,6 +9,7 @@
 #include "Ball.h"
 #include "Paddle.h"
 
+#include "audio.h"
 
 #define	BALL_MAX 2
 
@@ -68,7 +69,7 @@ void display(void)
 	fontSetSize(FONT_DEFAULT_SIZE);
 
 	float lineHeight = fontGetSize() * 1.5;
-	float y = fontGetWeight() /2;
+	float y = fontGetWeight() / 2;
 
 	fontSetPosition(0, y);
 	fontSetWeight(fontGetWeightMax());
@@ -136,10 +137,27 @@ void reshape(int width, int height)
 
 void keybord(unsigned char key, int x, int y)
 {
-	if (key == 0x1b)	//	EscapeƒL[‚ÅI—¹
-		exit(0);
+	printf("keybord: %d,(%#x)\n", key, key);
 
-	//printf("keybord: %d,(%#x)\n", key, key);
+	switch (key)
+	{
+	case 0x1b:			//	EscapeƒL[‚ÅI—¹
+		exit(0);
+		break;
+	case 'p':
+		audioPlay();		//	‰¹‚ğ—¬‚·
+		break;
+	case's':
+		audioStop();		//	‰¹‚ğ~‚ß‚é
+		break;
+	}
+
+	if ((key >= '1') && (key <= '4'))
+	{
+		audioWaveform(key - '1');	//	1`4ƒL[‚Å”gŒ`‚ğØ‚è‘Ö‚¦‚é
+		audioStop();		//	‰¹‚ğ~‚ß‚é	Ä¶’†‚É”gŒ`Ø‚è‘Ö‚¦‚Í‚Å‚«‚È‚¢
+		audioPlay();		//	‰¹‚ğ—¬‚·
+	}
 
 	keys[key] = true;	//	ƒL[‚ª‰Ÿ‚³‚ê‚½
 }
@@ -158,6 +176,9 @@ void passiveMotion(int _x, int _y)
 
 int main(int argc, char *argv[])
 {
+	if (audioInit() != 0)
+		return 1;
+
 	srand(time(NULL));		//	ƒ‰ƒ“ƒ_ƒ€—p•Ï”‚ğŒ»İ‚ÌŠÔ‚Å‰Šú‰»
 
 	for (int i = 0; i < BALL_MAX; i++)
