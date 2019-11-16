@@ -152,11 +152,11 @@ void keybord(unsigned char key, int x, int y)
 		break;
 	}
 
-	if ((key >= '1') && (key <= '4'))
+	if ((key >= '1') && (key <= '5'))
 	{
-		audioWaveform(key - '1');	//	1`4ƒL[‚Å”gŒ`‚ğØ‚è‘Ö‚¦‚é
-		audioStop();		//	‰¹‚ğ~‚ß‚é	Ä¶’†‚É”gŒ`Ø‚è‘Ö‚¦‚Í‚Å‚«‚È‚¢
-		audioPlay();		//	‰¹‚ğ—¬‚·
+		audioWaveform(key - '1');	//	1`5ƒL[‚Å”gŒ`‚ğØ‚è‘Ö‚¦‚é
+		audioStop();				//	‰¹‚ğ~‚ß‚é	Ä¶’†‚É”gŒ`Ø‚è‘Ö‚¦‚Í‚Å‚«‚È‚¢
+		audioPlay();				//	‰¹‚ğ—¬‚·
 	}
 
 	keys[key] = true;	//	ƒL[‚ª‰Ÿ‚³‚ê‚½
