@@ -7,12 +7,16 @@
 
 #pragma comment(lib,"OpenAL32.lib")			//	openalのライブラリをインポート
 
+#define DEFAULT_GAIN (.1f)	//	デフォルトの音量
 static ALuint sid;							//	音源ID
 ALuint buffers[AUDIO_WAVEFORM_PULSE_MAX];	//	波形を保存するバッファー
 static int waveform;
 
 static unsigned int length;	//	音の長さ
 static unsigned int start;	//	音が鳴り始めた時間
+
+static float decay;	//	音の減衰率
+static float gain;	//	現在の音量
 
 int audioInit()
 {
@@ -89,7 +93,7 @@ int audioInit()
 
 void audioWaveform(int _waveform)
 {
-	waveform = _waveform;	//	波形を設定
+	waveform = _waveform;
 }
 
 void audioLength(unsigned int _millis)
@@ -97,8 +101,18 @@ void audioLength(unsigned int _millis)
 	length = _millis;
 }
 
+void audioDecay(float _decay)
+{
+	decay = _decay;
+}
+
 void audioPlay()
 {
+	alSourcef(							//	音量を調整
+		sid,							//	上で作ったsidを設定
+		AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
+		gain = DEFAULT_GAIN);			//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
+
 	alSourcei(					//	ソースにバッファーをセットする
 		sid,					//	sidを設定
 		AL_BUFFER,				//	パラメーター(AL_BUFFER : バッファーを設定する)
@@ -118,5 +132,14 @@ void audioUpdate()
 	if ((length > 0) && (clock() - start >= length))
 	{
 		audioStop();
+	}
+
+	if ((decay != 00) && (decay < 1))
+	{
+		alSourcef(							//	音量を調整
+			sid,							//	上で作ったsidを設定
+			AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
+			gain *= decay);					//	現在の音量から減衰率をかけた値を入れる
+
 	}
 }
