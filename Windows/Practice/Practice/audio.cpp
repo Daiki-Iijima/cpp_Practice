@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <alc.h>
 #include <al.h>
+#include <time.h>
 
 #include "audio.h"
 
@@ -9,6 +10,9 @@
 static ALuint sid;							//	音源ID
 ALuint buffers[AUDIO_WAVEFORM_PULSE_MAX];	//	波形を保存するバッファー
 static int waveform;
+
+static unsigned int length;	//	音の長さ
+static unsigned int start;	//	音が鳴り始めた時間
 
 int audioInit()
 {
@@ -88,6 +92,11 @@ void audioWaveform(int _waveform)
 	waveform = _waveform;	//	波形を設定
 }
 
+void audioLength(unsigned int _millis)
+{
+	length = _millis;
+}
+
 void audioPlay()
 {
 	alSourcei(					//	ソースにバッファーをセットする
@@ -95,10 +104,19 @@ void audioPlay()
 		AL_BUFFER,				//	パラメーター(AL_BUFFER : バッファーを設定する)
 		buffers[waveform]);		//	waveformの現在の番号のパルス波を設定
 
-	alSourcePlay(sid);	//	再生
+	alSourcePlay(sid);			//	再生
+	start = clock();			//	再生した時刻を保存
 }
 
 void audioStop()
 {
 	alSourceStop(sid);	//	停止
+}
+
+void audioUpdate()
+{
+	if ((length > 0) && (clock() - start >= length))
+	{
+		audioStop();
+	}
 }

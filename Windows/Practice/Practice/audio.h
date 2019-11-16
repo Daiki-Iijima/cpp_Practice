@@ -11,5 +11,7 @@ enum {
 
 int audioInit();
 void audioWaveform(int _waveform);
+void audioLength(unsigned int _millis);
 void audioPlay();
 void audioStop();
+void audioUpdate();

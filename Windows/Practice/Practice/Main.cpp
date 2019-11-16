@@ -119,6 +119,9 @@ void idle(void)
 			balls[i].m_speed.y = fabs(balls[i].m_speed.y);	//	絶対値に変換してから、マイナスに変換
 		}
 	}
+
+	audioUpdate();
+
 	glutPostRedisplay();	//	再描画命令
 }
 
@@ -138,6 +141,8 @@ void reshape(int width, int height)
 void keybord(unsigned char key, int x, int y)
 {
 	printf("keybord: %d,(%#x)\n", key, key);
+
+	audioLength(500);	//	再生時間を設定
 
 	switch (key)
 	{
