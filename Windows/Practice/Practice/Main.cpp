@@ -143,10 +143,10 @@ void keybord(unsigned char key, int x, int y)
 	printf("keybord: %d,(%#x)\n", key, key);
 
 	//audioLength(500);			//	再生時間を設定
-	//audioDecay(.95f);			//	音を減衰させる(フェードアウト)
-	audioPitchTarget(4.0f);		//	上限加減ピッチの設定
-	audioSweep(1.05f);			//	音のピッチを変化させる
-
+	audioDecay(.95f);			//	音を減衰させる(フェードアウト)
+	//audioPitchTarget(4.0f);	//	上限加減ピッチの設定
+	//audioSweep(1.05f);		//	音のピッチを変化させる
+	audioFreq(440 * 2);			//	音階の設定
 
 	switch (key)
 	{
@@ -161,11 +161,20 @@ void keybord(unsigned char key, int x, int y)
 		break;
 	}
 
-	if ((key >= '1') && (key <= '5'))
+	//if ((key >= '1') && (key <= '5'))
+	//{
+	//	audioWaveform(key - '1');	//	1～5キーで波形を切り替える
+	//	audioStop();				//	音を止める	再生中に波形切り替えはできない
+	//	audioPlay();				//	音を流す
+	//}
+
+	if ((key >= '0' && (key <= '9')))
 	{
-		audioWaveform(key - '1');	//	1～5キーで波形を切り替える
-		audioStop();				//	音を止める	再生中に波形切り替えはできない
-		audioPlay();				//	音を流す
+		audioStop();
+		int k = key - '0';
+		audioWaveform(AUDIO_WAVEFORM_PULSE_50);		//	波形を切り替える
+		audioFreq(440 * powf(2, (1 + k / 12.f)));	//	12フレット
+		audioPlay();
 	}
 
 	keys[key] = true;	//	キーが押された

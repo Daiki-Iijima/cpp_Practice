@@ -8,6 +8,8 @@
 #pragma comment(lib,"OpenAL32.lib")			//	openalのライブラリをインポート
 
 #define DEFAULT_GAIN (.1f)	//	デフォルトの音量
+#define DEFAULT_FREQ (440)	//	デフォルトの周波数
+
 static ALuint sid;							//	音源ID
 ALuint buffers[AUDIO_WAVEFORM_PULSE_MAX];	//	波形を保存するバッファ
 static int waveform;
@@ -19,6 +21,7 @@ static float decay;			//	音の減衰率
 static float sweep;			//	音のピッチ変化率
 static float pitch;			//	音のピッチ
 static float pitchTarget;	//	音のピッチの上限下限値
+static float freq = DEFAULT_FREQ;	//	音階
 
 static float gain;	//	現在の音量
 
@@ -73,7 +76,7 @@ int audioInit()
 		AL_FORMAT_MONO8,						//	フォーマット
 		triangle,								//	波形データ
 		sizeof triangle,						//	波形データのサイズ
-		sizeof triangle * 440);					//	周波数(440:ラの音)
+		sizeof triangle * DEFAULT_FREQ);					//	周波数(音の高さ)
 
 	//	===================================
 
@@ -120,6 +123,11 @@ void audioPitchTarget(float _pitchTarget)
 	pitchTarget = _pitchTarget;
 }
 
+void audioFreq(float _freq)
+{
+	freq = _freq;
+}
+
 void audioPlay()
 {
 	alSourcef(							//	音量を調整
@@ -127,10 +135,12 @@ void audioPlay()
 		AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
 		gain = DEFAULT_GAIN);			//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
 
+	pitch = freq / DEFAULT_FREQ;		//	音階を設定
+
 	alSourcef(							//	ピッチを設定
 		sid,							//	sid
 		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-		pitch = 1);						//	最初は1から処理する
+		pitch);							//	最初は1から処理する
 
 	alSourcei(							//	バッファーをセットする
 		sid,							//	sid
@@ -173,9 +183,9 @@ void audioUpdate()
 			audioStop();
 		}
 
-			alSourcef(							//	ピッチを設定
-				sid,							//	sid
-				AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-				pitch);							//	最初は1から処理する
+		alSourcef(							//	ピッチを設定
+			sid,							//	sid
+			AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
+			pitch);							//	最初は1から処理する
 	}
 }
