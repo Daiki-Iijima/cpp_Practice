@@ -16,14 +16,16 @@ static int waveform;
 
 static unsigned int length;	//	音の長さ
 static unsigned int start;	//	音が鳴り始めた時間
-
+static float gain;			//	現在の音量
 static float decay;			//	音の減衰率
 static float sweep;			//	音のピッチ変化率
-static float pitch;			//	音のピッチ
-static float pitchTarget;	//	音のピッチの上限下限値
-static float freq = DEFAULT_FREQ;	//	音階
 
-static float gain;	//	現在の音量
+static float freqStart = DEFAULT_FREQ;	//	再生開始時の音階
+static float freq;						//	現在の音階
+static float freqEnd;					//	目標(上限下限)の音階
+
+
+
 
 int audioInit()
 {
@@ -76,7 +78,7 @@ int audioInit()
 		AL_FORMAT_MONO8,						//	フォーマット
 		triangle,								//	波形データ
 		sizeof triangle,						//	波形データのサイズ
-		sizeof triangle * DEFAULT_FREQ);					//	周波数(音の高さ)
+		sizeof triangle * DEFAULT_FREQ);		//	周波数(音の高さ)
 
 	//	===================================
 
@@ -113,19 +115,15 @@ void audioDecay(float _decay)
 	decay = _decay;
 }
 
-void audioSweep(float _sweep)
+void audioSweep(float _sweep, float _freqEnd)
 {
 	sweep = _sweep;
-}
-
-void audioPitchTarget(float _pitchTarget)
-{
-	pitchTarget = _pitchTarget;
+	freqEnd = _freqEnd;
 }
 
 void audioFreq(float _freq)
 {
-	freq = _freq;
+	freqStart = _freq;
 }
 
 void audioPlay()
@@ -135,20 +133,20 @@ void audioPlay()
 		AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
 		gain = DEFAULT_GAIN);			//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
 
-	pitch = freq / DEFAULT_FREQ;		//	音階を設定
+	freq = freqStart;					//	開始周波数を設定
 
 	alSourcef(							//	ピッチを設定
 		sid,							//	sid
 		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-		pitch);							//	最初は1から処理する
+		freq / DEFAULT_FREQ);			//	周波数 / デフォルト周波数 = ピッチ
 
 	alSourcei(							//	バッファーをセットする
 		sid,							//	sid
 		AL_BUFFER,						//	パラメーター(AL_BUFFER : バッファーを設定する)
 		buffers[waveform]);				//	waveformの現在の番号のパルス波を設定
 
-	alSourcePlay(sid);			//	再生
-	start = clock();			//	再生した時刻を保存
+	alSourcePlay(sid);					//	再生
+	start = clock();					//	再生した時刻を保存
 }
 
 void audioStop()
@@ -173,19 +171,19 @@ void audioUpdate()
 
 	if (sweep != 0)
 	{
-		pitch *= sweep;
-
-		if (
-			(sweep >= 1 && pitch >= pitchTarget) ||		//	高くなる場合
-			(sweep <= 1 && pitch <= pitchTarget)		//	低くなる場合
-			)
-		{
-			audioStop();
+		freq *= sweep;
+		if (freqEnd != 0) {
+			if (
+				(sweep >= 1 && freq >= freqEnd) ||		//	高くなる場合
+				(sweep <= 1 && freq <= freqEnd)			//	低くなる場合
+				)
+			{
+				audioStop();
+			}
 		}
-
 		alSourcef(							//	ピッチを設定
 			sid,							//	sid
 			AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-			pitch);							//	最初は1から処理する
+			freq / DEFAULT_FREQ);			//	周波数 / デフォルト周波数 = ピッチ
 	}
 }
