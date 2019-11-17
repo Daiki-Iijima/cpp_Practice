@@ -9,13 +9,17 @@
 
 #define DEFAULT_GAIN (.1f)	//	デフォルトの音量
 static ALuint sid;							//	音源ID
-ALuint buffers[AUDIO_WAVEFORM_PULSE_MAX];	//	波形を保存するバッファー
+ALuint buffers[AUDIO_WAVEFORM_PULSE_MAX];	//	波形を保存するバッファ
 static int waveform;
 
 static unsigned int length;	//	音の長さ
 static unsigned int start;	//	音が鳴り始めた時間
 
-static float decay;	//	音の減衰率
+static float decay;			//	音の減衰率
+static float sweep;			//	音のピッチ変化率
+static float pitch;			//	音のピッチ
+static float pitchTarget;	//	音のピッチの上限下限値
+
 static float gain;	//	現在の音量
 
 int audioInit()
@@ -33,7 +37,7 @@ int audioInit()
 	alcMakeContextCurrent(context);				//	現在のコンテキストを上で作成したコンテキストに設定
 
 
-	alGenBuffers(								//	波形データを管理するバッファーを作成
+	alGenBuffers(								//	波形データを管理するバッファを作成
 		AUDIO_WAVEFORM_PULSE_MAX,				//	バッファーを作成する数
 		buffers);								//	バッファーのポインターを返す
 
@@ -106,17 +110,32 @@ void audioDecay(float _decay)
 	decay = _decay;
 }
 
+void audioSweep(float _sweep)
+{
+	sweep = _sweep;
+}
+
+void audioPitchTarget(float _pitchTarget)
+{
+	pitchTarget = _pitchTarget;
+}
+
 void audioPlay()
 {
 	alSourcef(							//	音量を調整
-		sid,							//	上で作ったsidを設定
+		sid,							//	sid
 		AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
 		gain = DEFAULT_GAIN);			//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
 
-	alSourcei(					//	ソースにバッファーをセットする
-		sid,					//	sidを設定
-		AL_BUFFER,				//	パラメーター(AL_BUFFER : バッファーを設定する)
-		buffers[waveform]);		//	waveformの現在の番号のパルス波を設定
+	alSourcef(							//	ピッチを設定
+		sid,							//	sid
+		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
+		pitch = 1);						//	最初は1から処理する
+
+	alSourcei(							//	バッファーをセットする
+		sid,							//	sid
+		AL_BUFFER,						//	パラメーター(AL_BUFFER : バッファーを設定する)
+		buffers[waveform]);				//	waveformの現在の番号のパルス波を設定
 
 	alSourcePlay(sid);			//	再生
 	start = clock();			//	再生した時刻を保存
@@ -140,6 +159,23 @@ void audioUpdate()
 			sid,							//	上で作ったsidを設定
 			AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
 			gain *= decay);					//	現在の音量から減衰率をかけた値を入れる
+	}
 
+	if (sweep != 0)
+	{
+		pitch *= sweep;
+
+		if (
+			(sweep >= 1 && pitch >= pitchTarget) ||		//	高くなる場合
+			(sweep <= 1 && pitch <= pitchTarget)		//	低くなる場合
+			)
+		{
+			audioStop();
+		}
+
+			alSourcef(							//	ピッチを設定
+				sid,							//	sid
+				AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
+				pitch);							//	最初は1から処理する
 	}
 }

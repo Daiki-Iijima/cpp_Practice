@@ -142,8 +142,11 @@ void keybord(unsigned char key, int x, int y)
 {
 	printf("keybord: %d,(%#x)\n", key, key);
 
-	//audioLength(500);	//	再生時間を設定
-	audioDecay(.95f);	//	音を減衰させる(フェードアウト)
+	//audioLength(500);			//	再生時間を設定
+	//audioDecay(.95f);			//	音を減衰させる(フェードアウト)
+	audioPitchTarget(4.0f);		//	上限加減ピッチの設定
+	audioSweep(1.05f);			//	音のピッチを変化させる
+
 
 	switch (key)
 	{
