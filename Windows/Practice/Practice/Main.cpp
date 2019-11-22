@@ -9,6 +9,7 @@
 #include "Ball.h"
 #include "Paddle.h"
 
+#include "audio.h"
 
 #define	BALL_MAX 2
 
@@ -68,7 +69,7 @@ void display(void)
 	fontSetSize(FONT_DEFAULT_SIZE);
 
 	float lineHeight = fontGetSize() * 1.5;
-	float y = fontGetWeight() /2;
+	float y = fontGetWeight() / 2;
 
 	fontSetPosition(0, y);
 	fontSetWeight(fontGetWeightMax());
@@ -118,6 +119,9 @@ void idle(void)
 			balls[i].m_speed.y = fabs(balls[i].m_speed.y);	//	絶対値に変換してから、マイナスに変換
 		}
 	}
+
+	audioUpdate();
+
 	glutPostRedisplay();	//	再描画命令
 }
 
@@ -136,10 +140,43 @@ void reshape(int width, int height)
 
 void keybord(unsigned char key, int x, int y)
 {
-	if (key == 0x1b)	//	Escapeキーで終了
-		exit(0);
+	printf("keybord: %d,(%#x)\n", key, key);
 
-	//printf("keybord: %d,(%#x)\n", key, key);
+	//audioLength(500);			//	再生時間を設定
+	//audioDecay(.9f);			//	音を減衰させる(フェードアウト)
+	//audioPitchTarget(4.0f);	//	上限加減ピッチの設定
+	//audioSweep(1.05f);		//	音のピッチを変化させる
+	//audioFreq(440 * 2);			//	音階の設定
+
+	switch (key)
+	{
+	case 0x1b:			//	Escapeキーで終了
+		exit(0);
+		break;
+	case 'p':
+		audioPlay();		//	音を流す
+		break;
+	case's':
+		audioStop();		//	音を止める
+		break;
+	}
+
+	//if ((key >= '1') && (key <= '5'))
+	//{
+	//	audioWaveform(key - '1');	//	1～5キーで波形を切り替える
+	//	audioStop();				//	音を止める	再生中に波形切り替えはできない
+	//	audioPlay();				//	音を流す
+	//}
+
+	if ((key >= '0' && (key <= '9')))
+	{
+		audioStop();
+		int k = key - '0';
+		audioDecay(.9f);
+		audioWaveform(AUDIO_WAVEFORM_PULSE_50);		//	波形を切り替える
+		audioFreq(440 * powf(2, (1 + k / 12.f)));	//	12フレット
+		audioPlay();
+	}
 
 	keys[key] = true;	//	キーが押された
 }
@@ -158,6 +195,9 @@ void passiveMotion(int _x, int _y)
 
 int main(int argc, char *argv[])
 {
+	if (audioInit() != 0)
+		return 1;
+
 	srand(time(NULL));		//	ランダム用変数を現在の時間で初期化
 
 	for (int i = 0; i < BALL_MAX; i++)
