@@ -2,6 +2,11 @@
 
 #include "glut.h"
 
+Rect::Rect()
+{
+
+}
+
 Rect::Rect(vec2 const& _position, vec2 const& _size)
 	:m_position(_position)
 	, m_size(_size)
@@ -9,6 +14,7 @@ Rect::Rect(vec2 const& _position, vec2 const& _size)
 
 }
 
+//	++ 描画 ++
 void Rect::draw()
 {
 	//	OpenGLのメソッドで矩形を描画する
@@ -18,6 +24,7 @@ void Rect::draw()
 	);
 }
 
+//	++ 当たり判定(ポイント) ++
 bool Rect::intersect(vec2 const& _point)
 {
 	if (
@@ -31,6 +38,7 @@ bool Rect::intersect(vec2 const& _point)
 	return false;
 }
 
+//	++ 当たり判定(四角形) ++
 bool Rect::intersect(Rect const& _rect)
 {
 	if (

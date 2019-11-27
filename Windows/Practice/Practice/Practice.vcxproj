@@ -125,16 +125,18 @@
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="font.cpp" />
+    <ClCompile Include="HorizontalPaddle.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="Rect.cpp" />
+    <ClCompile Include="VerticalPaddle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
     <ClInclude Include="Ball.h" />
     <ClInclude Include="font.h" />
-    <ClInclude Include="Paddle.h" />
+    <ClInclude Include="HorizontalPaddle.h" />
     <ClInclude Include="Rect.h" />
+    <ClInclude Include="VerticalPaddle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
