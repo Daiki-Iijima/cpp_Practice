@@ -17,12 +17,6 @@ Rect::Rect(vec2 const& _position, vec2 const& _size)
 //	++ 描画 ++
 void Rect::draw()
 {
-	//	OpenGLのメソッドで矩形を描画する
-	//glRectf(
-	//	m_position.x, m_position.y,							//	左上x,y
-	//	m_position.x + m_size.x, m_position.y + m_size.y	//	右下x,y
-	//);
-
 	glBegin(GL_QUADS);	//	QUADS : 四角形の描画(ワイヤーフレーム対応)
 	{
 		glTexCoord2f(0, 0);												//	テクスチャ座標を設定
