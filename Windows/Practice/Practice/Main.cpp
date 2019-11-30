@@ -6,6 +6,8 @@
 #include "font.h"
 #include "audio.h"
 
+#include "Rect.h"
+
 using namespace glm;
 
 ivec2 windowSize = { 800,600 };	//	ウィンドウのサイズを定義
@@ -29,6 +31,41 @@ void display(void)
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
+	unsigned char pixels[] =		//	幅2ピクセル作成
+	{
+		0xff,0x00,0x00, 0x00,0xff,0x00,
+		0x00,0x00,0xff, 0x00,0xff,0xff
+	};
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);	//	1ピクセルからテクスチャを作成できるように設定
+
+	glTexImage2D(						//	Vramへの転送する情報と設定
+		GL_TEXTURE_2D,				//	ターゲット
+		0,							//	mipmapのレベル
+		GL_RGB,						//	テクスチャのフォーマット
+		2, 2,						//	幅と高さ
+		0,							//	ボーダー
+		GL_RGB,						//	ピクセルデータのフォーマット
+		GL_UNSIGNED_BYTE,			//	ピクセルひとつずつの型(Char型は1バイトなのでバイト)
+		pixels						//	作成したピクセルデータ	
+	);
+
+	glTexParameteri(				//	テクスチャのパラメータの設定
+		GL_TEXTURE_2D,				//	ターゲット
+		GL_TEXTURE_MAG_FILTER,		//	テクスチャの拡大時
+		GL_NEAREST					//	補間設定(NEAREST : 補間をしない)
+	);
+
+	glTexParameteri(				//	テクスチャのパラメータの設定
+		GL_TEXTURE_2D,				//	ターゲット
+		GL_TEXTURE_MIN_FILTER,		//	テクスチャの縮小時
+		GL_NEAREST					//	補間設定(NEAREST : 補間をしない)
+	);
+
+	glEnable(GL_TEXTURE_2D);		//	テクスチャを有効に
+
+	Rect rect = { {100,100},{400,400} };
+	rect.draw();
 
 	//	======= 文字列の描画 ======
 	fontBegin();
@@ -111,10 +148,8 @@ int main(int argc, char *argv[])
 	glutKeyboardUpFunc(keybordUp);			//	キーボードが離されたときイベント
 
 	glutPassiveMotionFunc(passiveMotion);	//	マウスの移動イベントを取得
-	//glutMotionFunc(motion);					//	マウスがクリックされた状態の移動イベントを取得
 
 	glutMainLoop();							//	処理をglutに委託する(コールバック系はこのメソッドより前に書く)
-
 
 	return 0;
 }

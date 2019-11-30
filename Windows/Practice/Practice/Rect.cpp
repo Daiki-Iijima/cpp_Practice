@@ -18,10 +18,26 @@ Rect::Rect(vec2 const& _position, vec2 const& _size)
 void Rect::draw()
 {
 	//	OpenGLのメソッドで矩形を描画する
-	glRectf(
-		m_position.x, m_position.y,							//	左上x,y
-		m_position.x + m_size.x, m_position.y + m_size.y	//	右下x,y
-	);
+	//glRectf(
+	//	m_position.x, m_position.y,							//	左上x,y
+	//	m_position.x + m_size.x, m_position.y + m_size.y	//	右下x,y
+	//);
+
+	glBegin(GL_QUADS);	//	QUADS : 四角形の描画(ワイヤーフレーム対応)
+	{
+		glTexCoord2f(0, 0);												//	テクスチャ座標を設定
+		glVertex2fv((GLfloat *)&m_position);							//	左上
+
+		glTexCoord2f(0, 1);												//	テクスチャ座標を設定
+		glVertex2fv((GLfloat *)&(m_position + vec2(0, m_size.y)));		//	左下
+
+		glTexCoord2f(1, 1);												//	テクスチャ座標を設定
+		glVertex2fv((GLfloat *)&(m_position + m_size));					//	右下
+
+		glTexCoord2f(1, 0);												//	テクスチャ座標を設定
+		glVertex2fv((GLfloat *)&(m_position + vec2(m_size.x, 0)));		//	右上
+	}
+	glEnd();
 }
 
 //	++ 当たり判定(ポイント) ++
