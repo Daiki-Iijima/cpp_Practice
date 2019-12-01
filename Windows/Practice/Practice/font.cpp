@@ -6,9 +6,12 @@
 #include "glm/glm.hpp"
 #include "glut.h"
 
+#define FONT GLUT_STROKE_ROMAN
+
 using namespace glm;
 
 static vec2 position;
+static vec2 origin;
 static float height = FONT_DEFAULT_HEIGHT;
 static float weight = 1;
 
@@ -50,12 +53,12 @@ void fontEnd()
 	glPopAttrib();						//	fontBeginで保持した描画属性を戻す
 }
 
-void fontSetPosition(float _x, float _y)
+void fontPosition(float _x, float _y)
 {
-	position = vec2(_x, _y);
+	origin = position = vec2(_x, _y);
 }
 
-void fontSetHeight(float _height)
+void fontHeight(float _height)
 {
 	height = _height;
 }
@@ -65,10 +68,12 @@ float fontGetHeight()
 	return height;
 }
 
-float fontGetWidth()
+float fontGetWidth(int _character)
 {
-	//	使用しているフォントの幅を取得して、Draw関数内でかけている倍率をかけることで1文字分の文字の横幅を算出している
-	return glutStrokeWidth(GLUT_STROKE_ROMAN,'0') * (height / FONT_DEFAULT_HEIGHT);
+	return glutStrokeWidth(				//	文字の幅を取得
+		FONT,							//	使用しているフォント
+		_character						//	対象の文字
+	)* height / FONT_DEFAULT_HEIGHT;	//	文字にかかっている倍率をかける
 }
 
 float fontGetWeightMin()
@@ -93,7 +98,7 @@ float fontGetWeightMax()
 	return weight[1];
 }
 
-void fontSetWeight(float _weight)
+void fontWeight(float _weight)
 {
 	weight = _weight;
 }
@@ -102,13 +107,6 @@ float fontGetWeight()
 {
 	return weight;
 }
-
-//void fontSetColor(unsigned char _red, unsigned char _green, unsigned char _blue)
-//{
-//	color[0] = _red;
-//	color[1] = _green;
-//	color[2] = _blue;
-//}
 
 void fontDraw(const char *_format, ...)
 {
@@ -127,25 +125,32 @@ void fontDraw(const char *_format, ...)
 
 	va_end(argList);
 
-	//glColor3ub(color[0], color[1], color[2]);				//	フォントの色を変更
-
 	char* p = str;
 
-	glPushMatrix();											//	位置、大きさ(上下反転)を変更したいので行列を保存 
+	//	=== 描画する文字列を1文字ずつ描画する ===
 	{
-		glTranslatef(position.x, position.y + height, 0);	//	位置を変更
-		float s = height / FONT_DEFAULT_HEIGHT;
-		glScalef(s, -s, s);									//	大きさを変更
+		for (; *p != '\0' && *p != '\n'; p++)						//	*pが\0(空文字)か\n(改行コード)の場合ループを終わる
+		{
+			glPushMatrix();											//	位置、大きさ(上下反転)を変更したいので行列を保存 
+			{
+				glTranslatef(position.x, position.y + height, 0);	//	位置を変更
+				float s = height / FONT_DEFAULT_HEIGHT;
+				glScalef(s, -s, s);									//	大きさを変更
 
-		for (; *p != '\0' && *p != '\n'; p++)				//	*pが\0(空文字)か\n(改行コード)の場合ループを終わる
-			glutStrokeCharacter(GLUT_STROKE_ROMAN, *p);		//	文字を描く
+				glutStrokeCharacter(FONT, *p);						//	文字を描く
+				position.x += fontGetWidth(*p);						//	上で描いた文字分の座標を動かしておく(次に描画する文字が重ならないように)
+			}
+			glPopMatrix();											//	元に戻す
 
+		}
 	}
-	glPopMatrix();											//	元に戻す
+	//	=======================================
 
 	if (*p == '\n')											//	改行コードで終了していた場合
 	{
-		glTranslatef(0, height + weight * 2, 0);			//	文字描画位置を下にずらす
+		position.x = origin.x;								//	xの位置は最初にセットした位置に戻す
+		position.y += height + weight * 2;					//	文字描画位置を下にずらす
+
 		fontDraw(++p);										//	再度描画命令を出す(再帰処理)
 	}
 }

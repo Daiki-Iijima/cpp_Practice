@@ -46,9 +46,12 @@ void display(void)
 	//	======= •¶Žš—ñ‚Ì•`‰æ ======
 	fontBegin();
 	{
-		fontSetHeight(FONT_DEFAULT_HEIGHT);
-		fontSetPosition(0, 0);
-		//fontDraw("");
+		fontHeight(FONT_DEFAULT_HEIGHT);
+		fontWeight(fontGetWeightMax());
+		fontPosition(0, 0);
+
+		fontDraw("abc\nkkk"); fontDraw("\n"); fontDraw("def\n");
+
 	}
 	fontEnd();
 	//	=====================================
