@@ -62,7 +62,7 @@ int audioInit()
 			AL_FORMAT_MONO8,						//	フォーマット
 			pulse[i],								//	波形データ
 			size,									//	波形データのサイズ
-			size * 440);							//	周波数(440:ラの音)
+			size);									//	周波数(440:ラの音)
 	}
 	//	=====================================
 
@@ -78,7 +78,7 @@ int audioInit()
 		AL_FORMAT_MONO8,						//	フォーマット
 		triangle,								//	波形データ
 		sizeof triangle,						//	波形データのサイズ
-		sizeof triangle * DEFAULT_FREQ);		//	周波数(音の高さ)
+		sizeof triangle);		//	周波数(音の高さ)
 
 	//	===================================
 
@@ -103,6 +103,11 @@ int audioInit()
 void audioWaveform(int _waveform)
 {
 	waveform = _waveform;
+
+	alSourcei(							//	波形データを設定
+		sid,							//	sid
+		AL_BUFFER,						//	パラメーター(AL_BUFFER : バッファーを設定する)
+		buffers[waveform]);				//	waveformの現在の番号のパルス波を設定
 }
 
 void audioLength(unsigned int _millis)
@@ -124,6 +129,11 @@ void audioSweep(float _sweep, float _freqEnd)
 void audioFreq(float _freq)
 {
 	freqStart = _freq;
+
+	alSourcef(							//	ピッチを設定
+		sid,							//	sid
+		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
+		freq);							//	周波数 / デフォルト周波数 = ピッチ
 }
 
 void audioPlay()
@@ -138,12 +148,7 @@ void audioPlay()
 	alSourcef(							//	ピッチを設定
 		sid,							//	sid
 		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-		freq / DEFAULT_FREQ);			//	周波数 / デフォルト周波数 = ピッチ
-
-	alSourcei(							//	バッファーをセットする
-		sid,							//	sid
-		AL_BUFFER,						//	パラメーター(AL_BUFFER : バッファーを設定する)
-		buffers[waveform]);				//	waveformの現在の番号のパルス波を設定
+		freq);							//	周波数 / デフォルト周波数 = ピッチ
 
 	alSourcePlay(sid);					//	再生
 	start = clock();					//	再生した時刻を保存
@@ -184,6 +189,12 @@ void audioUpdate()
 		alSourcef(							//	ピッチを設定
 			sid,							//	sid
 			AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-			freq / DEFAULT_FREQ);			//	周波数 / デフォルト周波数 = ピッチ
+			freq);							//	周波数 / デフォルト周波数 = ピッチ
+	}
+
+	ALenum error = alGetError();			//	エラーの取得
+	if (error != AL_NO_ERROR)				//	エラーがあった場合(AL_NO_ERROR : エラーがない)
+	{
+		printf("%s\n", alGetString(error));
 	}
 }

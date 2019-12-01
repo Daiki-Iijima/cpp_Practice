@@ -92,6 +92,27 @@ void keybord(unsigned char key, int x, int y)
 		break;
 	}
 
+	/*if ((key >= '0') && (key <= '4'))
+	{
+		audioStop();
+		audioWaveform(key - '0');
+		audioFreq(440);
+		audioSweep(.99, 440 / 2);
+		audioPlay();
+	}*/
+
+	if ((key >= '0') && (key <= '9'))
+	{
+		audioStop();
+		int k = key - '0';
+		audioWaveform(AUDIO_WAVEFORM_PULSE_12_5);
+		audioFreq(440 * powf(2, (1 + k / 12.f)));
+		//audioDecay(.9f);
+		audioSweep(.99, 440 / 2);
+		audioPlay();
+	}
+
+
 	keys[key] = true;	//	キーが押された
 }
 
@@ -108,6 +129,8 @@ void passiveMotion(int _x, int _y)
 
 int main(int argc, char *argv[])
 {
+	audioInit();
+
 	glutInit(&argc, argv);
 
 	glutInitDisplayMode(GL_DOUBLE);			//	ダブルバッファを使用する(やらない場合シングルバッファ)
