@@ -10,15 +10,13 @@ int texFromBMP(const char* _fileName)
 	FILE *pFile;
 	fopen_s(&pFile, _fileName, "rb");					//	ファイルを開く
 
-	if (pFile == nullptr)
+	if (pFile == nullptr)								//	nullチェック
 	{
 		printf("%s open failed!\n", _fileName);
 		return 1;
 	}
 	else
-	{
 		printf("%s file Opend!\n", _fileName);
-	}
 
 	BITMAPFILEHEADER bf;								//	ヘッダーのデータを格納する構造体を定義
 	fread(&bf, sizeof(BITMAPFILEHEADER), 1, pFile);		//	読み込み
@@ -36,6 +34,31 @@ int texFromBMP(const char* _fileName)
 
 	RGBA *pixels = (RGBA*)malloc(sizeof RGBA * bi.biWidth * bi.biHeight);	//	ピクセルのメモリを確保
 	fread(pixels, sizeof RGBA, bi.biWidth * bi.biHeight, pFile);			//	ピクセルデータの読み込み
+
+	//	=== 色の補正 ===
+	for (int y = 0; y < bi.biHeight; y++)
+		for (int x = 0; x < bi.biWidth; x++)
+		{
+			RGBA *pPixel = &pixels[y * bi.biWidth + x];	//	入れ替えるピクセルのアドレス
+			unsigned char temp = pPixel->r;				//	R(赤)情報を保存
+			pPixel->r = pPixel->b;						//	R(赤)にB(青)情報をコピー
+			pPixel->b = temp;							//	B(青)にR(赤)情報をコピー
+		}
+	//	================
+
+	//	=== 上下の反転 ===
+	for (int y = 0; y < bi.biHeight / 2; y++)	//	上半分だけ
+		for (int x = 0; x < bi.biWidth; x++)
+		{
+			RGBA *pPixel0 = &pixels[y * bi.biWidth + x];					//	一番上の行 -> 下へ
+			RGBA *pPixel1 = &pixels[(bi.biHeight - 1 - y)* bi.biWidth + x];	//	一番下の行 -> 上へ
+
+			RGBA temp = *pPixel0;											//	スワップ処理
+			*pPixel0 = *pPixel1;
+			*pPixel1 = temp;
+
+		}
+	//	================
 
 
 	glTexImage2D(					//	Vramへの転送する情報と設定
