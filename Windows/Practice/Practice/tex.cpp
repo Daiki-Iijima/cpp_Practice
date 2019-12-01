@@ -5,7 +5,7 @@
 
 #include "tex.h"
 
-int texFromBMP(const char* _fileName)
+int texFromBMP(const char* _fileName, unsigned char* _colorKey)
 {
 	FILE *pFile;
 	fopen_s(&pFile, _fileName, "rb");					//	ファイルを開く
@@ -43,6 +43,13 @@ int texFromBMP(const char* _fileName)
 			unsigned char temp = pPixel->r;				//	R(赤)情報を保存
 			pPixel->r = pPixel->b;						//	R(赤)にB(青)情報をコピー
 			pPixel->b = temp;							//	B(青)にR(赤)情報をコピー
+
+			pPixel->a = (_colorKey != nullptr) &&		//	渡されたColorKeyあり、すべての色情報が一致していたら
+				(pPixel->r == _colorKey[0]) &&
+				(pPixel->g == _colorKey[1]) &&
+				(pPixel->b == _colorKey[2])
+				? 0x00									//	一致したら
+				: 0xff;									//	一致していなかったら
 		}
 	//	================
 

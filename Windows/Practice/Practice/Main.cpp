@@ -32,10 +32,16 @@ void display(void)
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
-	glEnable(GL_TEXTURE_2D);		//	テクスチャを有効に
+	//	=== テクスチャの描画 ===
+	//glEnable(GL_TEXTURE_2D);		//	テクスチャを有効に
+	//glEnable(GL_BLEND);			//	透過処理を有効に
 
-	Rect rect = { {0,0},vec2{448,256}*2.f };	//	テクスチャを張り付ける四角形を作成
-	rect.draw();						//	四角形を描画
+	//glBlendFunc(					//	アルファブレンド設定
+	//	GL_SRC_ALPHA,				//
+	//	GL_ONE_MINUS_SRC_ALPHA		//	
+	//);
+
+	//	==================
 
 	//	======= 文字列の描画 ======
 	fontBegin();
@@ -108,8 +114,8 @@ int main(int argc, char *argv[])
 
 	glutCreateWindow("多々タイトル");		//	Windowのタイトル設定
 
-	int result = texFromBMP("UnityChan.bmp");		//	.bmpファイルを開く
-
+	//unsigned char colorKey[] = { 0x00,0xff,0x00 };			//	透明にしたい色
+	//int result = texFromBMP("UnityChan.bmp", colorKey);		//	.bmpファイルを開く
 
 	glutDisplayFunc(display);				//	描画が必要になったら呼ばれるコールバックの設定
 
