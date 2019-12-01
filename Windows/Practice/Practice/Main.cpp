@@ -43,20 +43,53 @@ void display(void)
 
 	//	==================
 
+
 	//	======= 文字列の描画 ======
 	fontBegin();
 	{
-		fontHeight(FONT_DEFAULT_HEIGHT);
-		fontWeight(fontGetWeightMax());
-		fontPosition(0, 0);
+		fontHeight(FONT_DEFAULT_HEIGHT / 2);
+		fontWeight(fontGetWeightMax() / 2);
+		fontPosition(fontGetWeight() * 2, fontGetWeight() * 2);
 
-		fontDraw("abc\nkkk"); fontDraw("\n"); fontDraw("def\n");
+		//fontDraw("abc\nkkk"); fontDraw("\n"); fontDraw("def\n");
 
 	}
 	fontEnd();
 	//	=====================================
 
+	//	=== 疑似乱数生成アルゴリズム ===
+	static int shiftReg = 1 << 14;
+	int result = (shiftReg ^ (shiftReg >> 1)) & 1;	//	XOR演算をする
+	shiftReg >>= 1;									//	レジスタの値を右に1シフトさせる
+	shiftReg |= result << 14;						//	or演算して計算結果を14ビット目に代入
+
+	for (int i = 14; i >= 0; i--)
+	{
+		switch (i)									//	ビット番号で色分け
+		{
+		case 0:glColor3ub(0x00, 0xff, 0x00); break;
+		case 1:glColor3ub(0xff, 0x00, 0x00); break;
+		case 14:glColor3ub(0xff, 0xff, 0x00); break;
+		default:glColor3ub(0xff, 0xff, 0xff); break;
+		}
+
+		fontDraw("%d", (shiftReg >> i) & 1);
+
+		if (i % 4 == 0)								//	4文字区切りでカンマを代入
+		{
+			glColor3ub(0xff, 0xff, 0xff);
+			fontDraw(",");
+		}
+	}
+	glColor3ub(0xff, 0xff, 0x00);
+	fontDraw("\n%d", result);
+
+	glColor3ub(0xff, 0xff, 0xff);
+	fontDraw("\n%#x(%d)", shiftReg, shiftReg);
+	//	===============================
+
 	glutSwapBuffers();	//	ダブルバッファの表と裏を切り替える(スワップする)
+	//getchar();
 }
 
 void idle(void)
