@@ -7,9 +7,6 @@
 
 #pragma comment(lib,"OpenAL32.lib")			//	openalのライブラリをインポート
 
-#define DEFAULT_GAIN (.1f)					//	デフォルトの音量
-#define DEFAULT_FREQ (440)					//	デフォルトの周波数
-
 ALuint buffers[AUDIO_WAVEFORM_PULSE_MAX];	//	波形を保存するバッファ
 
 //static float freqStart = DEFAULT_FREQ;	//	再生開始時の音階
@@ -20,9 +17,10 @@ typedef struct {
 	unsigned int length;				//	音の長さ
 	unsigned int start;					//	音が鳴り始めた時間
 	float decay;						//	音の減衰率
+	float startGain;					//	開始時の音量
 	float gain;							//	現在の音量
 	float sweep;						//	周波数の変化率
-	float freqStart = DEFAULT_FREQ;		//	再生開始時の音階
+	float freqStart;					//	再生開始時の音階
 	float freq;							//	現在の音階
 	float freqEnd;						//	目標(上限下限)の音階
 }CHANNEL;
@@ -141,14 +139,16 @@ int audioInit()
 
 	for (int i = 0; i < AUDIO_CHANNEL_MAX; i++)
 	{
-		alGenSources(			//	音の再生をするためのソースを作成
-			1,					//	ソースの数
-			&channels[i].sid);	//	ソースのIDアドレス
+		audioGain(i, AUDIO_DEFAULT_GAIN);	//	音量をデフォルト音量で初期化
 
-		alSourcei(				//	ループを許可する
-			channels[i].sid,	//	上で作ったsidを設定
-			AL_LOOPING,			//	パラメーター(AL_LOOPING : ループするか)
-			true);				//	ループを許可
+		alGenSources(						//	音の再生をするためのソースを作成
+			1,								//	ソースの数
+			&channels[i].sid);				//	ソースのIDアドレス
+
+		alSourcei(							//	ループを許可する
+			channels[i].sid,				//	上で作ったsidを設定
+			AL_LOOPING,						//	パラメーター(AL_LOOPING : ループするか)
+			true);							//	ループを許可
 	}
 
 	//	=== 各チャンネルを初期化 ===
@@ -158,9 +158,9 @@ int audioInit()
 		audioWaveform(AUDIO_CHANNEL_TRIANGLE, AUDIO_WAVEFORM_TRIANGLE);
 		audioWaveform(AUDIO_CHANNEL_NOISE, AUDIO_WAVEFORM_NOISE_LONG);
 
-		audioFreq(AUDIO_CHANNEL_PULSE0, DEFAULT_FREQ);
-		audioFreq(AUDIO_CHANNEL_PULSE1, DEFAULT_FREQ);
-		audioFreq(AUDIO_CHANNEL_TRIANGLE, DEFAULT_FREQ);
+		audioFreq(AUDIO_CHANNEL_PULSE0, AUDIO_DEFAULT_FREQ);
+		audioFreq(AUDIO_CHANNEL_PULSE1, AUDIO_DEFAULT_FREQ);
+		audioFreq(AUDIO_CHANNEL_TRIANGLE, AUDIO_DEFAULT_FREQ);
 		audioFreq(AUDIO_CHANNEL_NOISE, audioIndexToFreq(8));
 	}
 	//	=============================
@@ -176,6 +176,17 @@ void audioWaveform(int _channel, int _waveform)
 		channels[_channel].sid,								//	sid
 		AL_BUFFER,											//	パラメーター(AL_BUFFER : バッファーを設定する)
 		buffers[channels[_channel].waveform]);				//	waveformの現在の番号のパルス波を設定
+}
+
+void audioGain(int _channel, float _gain)
+{
+	channels[_channel].gain = channels[_channel].startGain = _gain;
+
+	alSourcef(													//	音量を調整
+		channels[_channel].sid,									//	sid
+		AL_GAIN,												//	パラメーター(AL_GAIN : 音量)
+		channels[_channel].gain);								//	上で設定した音量を設定
+
 }
 
 void audioLength(int _channel, unsigned int _millis)
@@ -215,10 +226,12 @@ float audioIndexToFreq(int _index)
 
 void audioPlay(int _channel)
 {
+	channels[_channel].gain = channels[_channel].startGain;		//	現在の音量を開始音量で初期化
+
 	alSourcef(													//	音量を調整
 		channels[_channel].sid,									//	sid
 		AL_GAIN,												//	パラメーター(AL_GAIN : 音量)
-		channels[_channel].gain = DEFAULT_GAIN);				//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
+		channels[_channel].gain);								//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
 
 	channels[_channel].freq = channels[_channel].freqStart;		//	開始周波数を設定
 

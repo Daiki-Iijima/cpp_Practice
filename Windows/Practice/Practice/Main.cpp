@@ -32,17 +32,6 @@ void display(void)
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
-	//	=== テクスチャの描画 ===
-	//glEnable(GL_TEXTURE_2D);		//	テクスチャを有効に
-	//glEnable(GL_BLEND);			//	透過処理を有効に
-
-	//glBlendFunc(					//	アルファブレンド設定
-	//	GL_SRC_ALPHA,				//
-	//	GL_ONE_MINUS_SRC_ALPHA		//	
-	//);
-
-	//	==================
-
 
 	//	======= 文字列の描画 ======
 	fontBegin();
@@ -56,7 +45,6 @@ void display(void)
 			if (keys[i])
 				fontDraw("%c\n", i);	//	押されているキーを描画する
 		}
-		//fontDraw("abc\nkkk"); fontDraw("\n"); fontDraw("def\n");
 	}
 	fontEnd();
 
@@ -95,6 +83,7 @@ void keybord(unsigned char key, int x, int y)
 	{
 		int channel = key - '0';
 		audioStop(channel);
+		audioGain(channel, AUDIO_DEFAULT_GAIN * .1f);
 		audioPlay(channel);
 	}
 
@@ -112,29 +101,6 @@ void keybord(unsigned char key, int x, int y)
 		//	audioPlay();
 		//break;
 	}
-
-	/*if ((key >= '0') && (key <= '4'))
-	{
-		audioStop();
-		audioWaveform(key - '0');
-		audioFreq(440);
-		audioSweep(.99, 440 / 2);
-		audioPlay();
-	}*/
-
-	//if ((key >= '0') && (key <= '9'))
-	//{
-	//	audioStop();
-	//	int k = key - '0';
-	//	audioWaveform(AUDIO_WAVEFORM_PULSE_12_5);
-	//	audioFreq(440 * powf(2, (1 + k / 12.f)));
-	//	//audioDecay(.9f);
-	//	audioSweep(.99, 440 / 2);
-	//	audioPlay();
-	//}
-
-
-
 }
 
 void keybordUp(unsigned char key, int x, int y)

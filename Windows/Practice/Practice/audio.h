@@ -19,8 +19,12 @@ enum{
 	AUDIO_CHANNEL_MAX,
 };
 
+#define AUDIO_DEFAULT_GAIN (.1f)					//	デフォルトの音量
+#define AUDIO_DEFAULT_FREQ (440)					//	デフォルトの周波数
+
 int audioInit();
 void audioWaveform(int _channel,int _waveform);
+void audioGain(int _channel, float _gain);
 void audioLength(int _channel, unsigned int _millis);
 void audioDecay(int _channel, float _decay);
 void audioSweep(int _channel, float _sweep, float _freqEnd = 0);
