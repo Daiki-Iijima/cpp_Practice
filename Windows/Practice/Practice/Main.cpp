@@ -58,24 +58,25 @@ void display(void)
 	//	=====================================
 
 	//	=== 疑似乱数生成アルゴリズム ===
-	static int shiftReg = 1 << 14;					//	シフトレジスターを定義
-	int result = (shiftReg ^ (shiftReg >> 1)) & 1;	//	XOR演算をする
-	shiftReg >>= 1;									//	レジスタの値を右に1シフトさせる
-	shiftReg |= result << 14;						//	or演算して計算結果を14ビット目に代入
+	const int xorBit = 6;									//	何ビット目とXOR演算するか
+	static int shiftReg = 1 << 14;							//	シフトレジスターを定義
+	int result = (shiftReg ^ (shiftReg >> xorBit)) & 1;		//	0bit目と1bit目をXOR演算
+	shiftReg >>= 1;											//	レジスタの値を右に1シフトさせる
+	shiftReg |= result << 14;								//	or演算して計算結果を14ビット目に代入
 
 	for (int i = 14; i >= 0; i--)
 	{
-		switch (i)									//	ビット番号で色分け
+		switch (i)											//	ビット番号で色分け
 		{
 		case 0:glColor3ub(0x00, 0xff, 0x00); break;
-		case 1:glColor3ub(0xff, 0x00, 0x00); break;
+		case xorBit:glColor3ub(0xff, 0x00, 0x00); break;
 		case 14:glColor3ub(0xff, 0xff, 0x00); break;
 		default:glColor3ub(0xff, 0xff, 0xff); break;
 		}
 
 		fontDraw("%d", (shiftReg >> i) & 1);
 
-		if (i % 4 == 0)								//	4文字区切りでカンマを代入
+		if (i % 4 == 0)										//	4文字区切りでカンマを代入
 		{
 			glColor3ub(0xff, 0xff, 0xff);
 			fontDraw(",");
@@ -89,7 +90,7 @@ void display(void)
 	//	===============================
 
 	glutSwapBuffers();	//	ダブルバッファの表と裏を切り替える(スワップする)
-	//getchar();
+	//getchar();		//	キーボード入力待ち状態
 }
 
 void idle(void)
@@ -125,7 +126,7 @@ void keybord(unsigned char key, int x, int y)
 		break;
 	case 'p':
 		audioStop();
-		audioWaveform(AUDIO_WAVEFORM_NOISE_LONG);
+		audioWaveform(AUDIO_WAVEFORM_NOISE_SHORT);
 		audioFreq(1789772.5f / 202);	//	1789772.5f = ファミコンのCPUの周波数
 		//audioDecay(.9f);
 		//audioSweep(.9f, 1789772.5f / 4068);

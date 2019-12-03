@@ -85,16 +85,16 @@ int audioInit()
 	}
 	//	===================================
 
-	//	===	ノイズの波形データを作成する ===
+	//	===	長周期ノイズの波形データを作成する ===
 	{
-		const int len = 32767;									//	長周期のノイズ周期
+		const int len = 32767;									//	長周期ノイズの周期
 
 		unsigned char noise[len];								//	8bitの符号なし整数
 
 		int shiftReg = 1 << 14;									//	シフトレジスター作成(1~14の長さ)
 		for (int i = 0; i < len; i++)
 		{
-			int result = (shiftReg ^ (shiftReg >> 1)) & 1;		//	XOR演算
+			int result = (shiftReg ^ (shiftReg >> 1)) & 1;		//	0bit目と1bit目をXOR演算
 			shiftReg >>= 1;										//	レジスター内の値を右に1ビットシフト
 			shiftReg |= result << 14;							//	XOR演算で求めた値をシフトレジスターの最後に代入する
 
@@ -108,6 +108,32 @@ int audioInit()
 			sizeof noise,							//	波形データのサイズ
 			1);										//	周波数(音の高さ)は後で決めるので1
 		
+	}
+	//	====================================
+
+		//	===	短周期ノイズの波形データを作成する ===
+	{
+		const int len = 93;									//	短周期ノイズの周期
+
+		unsigned char noise[len];								//	8bitの符号なし整数
+
+		int shiftReg = 1 << 14;									//	シフトレジスター作成(1~14の長さ)
+		for (int i = 0; i < len; i++)
+		{
+			int result = (shiftReg ^ (shiftReg >> 6)) & 1;		//	0bit目と1bit目をXOR演算
+			shiftReg >>= 1;										//	レジスター内の値を右に1ビットシフト
+			shiftReg |= result << 14;							//	XOR演算で求めた値をシフトレジスターの最後に代入する
+
+			noise[i] = 0xff * result;							//	0xff=255 ,result=(0 or 1)なので、0か255が書き込まれる
+		}
+
+		alBufferData(								//	長周期ノイズデータのセット
+			buffers[AUDIO_WAVEFORM_NOISE_SHORT],		//	波形を保存するバッファ
+			AL_FORMAT_MONO8,						//	フォーマット
+			noise,									//	波形データ
+			sizeof noise,							//	波形データのサイズ
+			1);										//	周波数(音の高さ)は後で決めるので1
+
 	}
 	//	====================================
 
