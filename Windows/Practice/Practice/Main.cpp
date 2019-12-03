@@ -47,50 +47,20 @@ void display(void)
 	//	======= 文字列の描画 ======
 	fontBegin();
 	{
-		fontHeight(FONT_DEFAULT_HEIGHT / 2);
-		fontWeight(fontGetWeightMax() / 2);
+		fontHeight(FONT_DEFAULT_HEIGHT);
+		fontWeight(fontGetWeightMax());
 		fontPosition(fontGetWeight() * 2, fontGetWeight() * 2);
 
+		for (int i = 0; i < 128; i++)
+		{
+			if (keys[i])
+				fontDraw("%c\n", i);	//	押されているキーを描画する
+		}
 		//fontDraw("abc\nkkk"); fontDraw("\n"); fontDraw("def\n");
-
 	}
 	fontEnd();
-	//	=====================================
-
-	//	=== 疑似乱数生成アルゴリズム ===
-	const int xorBit = 6;									//	何ビット目とXOR演算するか
-	static int shiftReg = 1 << 14;							//	シフトレジスターを定義
-	int result = (shiftReg ^ (shiftReg >> xorBit)) & 1;		//	0bit目と1bit目をXOR演算
-	shiftReg >>= 1;											//	レジスタの値を右に1シフトさせる
-	shiftReg |= result << 14;								//	or演算して計算結果を14ビット目に代入
-
-	for (int i = 14; i >= 0; i--)
-	{
-		switch (i)											//	ビット番号で色分け
-		{
-		case 0:glColor3ub(0x00, 0xff, 0x00); break;
-		case xorBit:glColor3ub(0xff, 0x00, 0x00); break;
-		case 14:glColor3ub(0xff, 0xff, 0x00); break;
-		default:glColor3ub(0xff, 0xff, 0xff); break;
-		}
-
-		fontDraw("%d", (shiftReg >> i) & 1);
-
-		if (i % 4 == 0)										//	4文字区切りでカンマを代入
-		{
-			glColor3ub(0xff, 0xff, 0xff);
-			fontDraw(",");
-		}
-	}
-	glColor3ub(0xff, 0xff, 0x00);
-	fontDraw("\n%d", result);
-
-	glColor3ub(0xff, 0xff, 0xff);
-	fontDraw("\n%#x(%d)", shiftReg, shiftReg);
-	//	===============================
 
 	glutSwapBuffers();	//	ダブルバッファの表と裏を切り替える(スワップする)
-	//getchar();		//	キーボード入力待ち状態
 }
 
 void idle(void)
@@ -119,19 +89,28 @@ void keybord(unsigned char key, int x, int y)
 {
 	printf("keybord: %d,(%#x)\n", key, key);
 
+	keys[key] = true;	//	キーが押された
+
+	if ((key >= '0') && (key <= '3'))
+	{
+		int channel = key - '0';
+		audioStop(channel);
+		audioPlay(channel);
+	}
+
 	switch (key)
 	{
 	case 0x1b:			//	Escapeキーで終了
 		exit(0);
 		break;
-	case 'p':
-		audioStop();
-		audioWaveform(AUDIO_WAVEFORM_NOISE_LONG);
-		audioFreq(audioIndexToFreq(14));	//	1789772.5f = ファミコンのCPUの周波数
-		//audioDecay(.9f);
-		//audioSweep(.9f, 1789772.5f / 4068);
-		audioPlay();
-	break;
+		//case 'p':
+		//	audioStop();
+		//	audioWaveform(AUDIO_WAVEFORM_NOISE_LONG);
+		//	audioFreq(audioIndexToFreq(14));	//	1789772.5f = ファミコンのCPUの周波数
+		//	//audioDecay(.9f);
+		//	//audioSweep(.9f, 1789772.5f / 4068);
+		//	audioPlay();
+		//break;
 	}
 
 	/*if ((key >= '0') && (key <= '4'))
@@ -143,19 +122,19 @@ void keybord(unsigned char key, int x, int y)
 		audioPlay();
 	}*/
 
-	if ((key >= '0') && (key <= '9'))
-	{
-		audioStop();
-		int k = key - '0';
-		audioWaveform(AUDIO_WAVEFORM_PULSE_12_5);
-		audioFreq(440 * powf(2, (1 + k / 12.f)));
-		//audioDecay(.9f);
-		audioSweep(.99, 440 / 2);
-		audioPlay();
-	}
+	//if ((key >= '0') && (key <= '9'))
+	//{
+	//	audioStop();
+	//	int k = key - '0';
+	//	audioWaveform(AUDIO_WAVEFORM_PULSE_12_5);
+	//	audioFreq(440 * powf(2, (1 + k / 12.f)));
+	//	//audioDecay(.9f);
+	//	audioSweep(.99, 440 / 2);
+	//	audioPlay();
+	//}
 
 
-	keys[key] = true;	//	キーが押された
+
 }
 
 void keybordUp(unsigned char key, int x, int y)
@@ -163,6 +142,12 @@ void keybordUp(unsigned char key, int x, int y)
 	printf("keybordUp: %d,(%#x)\n", key, key);
 
 	keys[key] = false;	//	キーが離された
+
+	if ((key >= '0') && (key <= '3'))
+	{
+		int channel = key - '0';
+		audioStop(channel);
+	}
 }
 
 void passiveMotion(int _x, int _y)

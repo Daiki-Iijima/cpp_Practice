@@ -7,25 +7,27 @@
 
 #pragma comment(lib,"OpenAL32.lib")			//	openalのライブラリをインポート
 
-#define DEFAULT_GAIN (.1f)	//	デフォルトの音量
-#define DEFAULT_FREQ (440)	//	デフォルトの周波数
+#define DEFAULT_GAIN (.1f)					//	デフォルトの音量
+#define DEFAULT_FREQ (440)					//	デフォルトの周波数
 
-static ALuint sid;							//	音源ID
 ALuint buffers[AUDIO_WAVEFORM_PULSE_MAX];	//	波形を保存するバッファ
-static int waveform;
 
-static unsigned int length;	//	音の長さ
-static unsigned int start;	//	音が鳴り始めた時間
-static float gain;			//	現在の音量
-static float decay;			//	音の減衰率
-static float sweep;			//	音のピッチ変化率
+//static float freqStart = DEFAULT_FREQ;	//	再生開始時の音階
 
-static float freqStart = DEFAULT_FREQ;	//	再生開始時の音階
-static float freq;						//	現在の音階
-static float freqEnd;					//	目標(上限下限)の音階
+typedef struct {
+	ALuint sid;							//	音源ID
+	int waveform;						//	波形の種類
+	unsigned int length;				//	音の長さ
+	unsigned int start;					//	音が鳴り始めた時間
+	float decay;						//	音の減衰率
+	float gain;							//	現在の音量
+	float sweep;						//	周波数の変化率
+	float freqStart = DEFAULT_FREQ;		//	再生開始時の音階
+	float freq;							//	現在の音階
+	float freqEnd;						//	目標(上限下限)の音階
+}CHANNEL;
 
-
-
+CHANNEL channels[AUDIO_CHANNEL_MAX];
 
 int audioInit()
 {
@@ -111,9 +113,9 @@ int audioInit()
 	}
 	//	====================================
 
-		//	===	短周期ノイズの波形データを作成する ===
+	//	===	短周期ノイズの波形データを作成する ===
 	{
-		const int len = 93;									//	短周期ノイズの周期
+		const int len = 93;										//	短周期ノイズの周期
 
 		unsigned char noise[len];								//	8bitの符号なし整数
 
@@ -128,7 +130,7 @@ int audioInit()
 		}
 
 		alBufferData(								//	長周期ノイズデータのセット
-			buffers[AUDIO_WAVEFORM_NOISE_SHORT],		//	波形を保存するバッファ
+			buffers[AUDIO_WAVEFORM_NOISE_SHORT],	//	波形を保存するバッファ
 			AL_FORMAT_MONO8,						//	フォーマット
 			noise,									//	波形データ
 			sizeof noise,							//	波形データのサイズ
@@ -137,127 +139,142 @@ int audioInit()
 	}
 	//	====================================
 
+	for (int i = 0; i < AUDIO_CHANNEL_MAX; i++)
+	{
+		alGenSources(			//	音の再生をするためのソースを作成
+			1,					//	ソースの数
+			&channels[i].sid);	//	ソースのIDアドレス
 
-	alGenSources(		//	音の再生をするためのソースを作成
-		1,				//	ソースの数
-		&sid);			//	ソースのIDアドレス
+		alSourcei(				//	ループを許可する
+			channels[i].sid,	//	上で作ったsidを設定
+			AL_LOOPING,			//	パラメーター(AL_LOOPING : ループするか)
+			true);				//	ループを許可
+	}
 
-	alSourcei(			//	ループを許可する
-		sid,			//	上で作ったsidを設定
-		AL_LOOPING,		//	パラメーター(AL_LOOPING : ループするか)
-		true);			//	ループを許可
+	//	=== 各チャンネルを初期化 ===
+	{
+		audioWaveform(AUDIO_CHANNEL_PULSE0, AUDIO_WAVEFORM_PULSE_12_5);
+		audioWaveform(AUDIO_CHANNEL_PULSE1, AUDIO_WAVEFORM_PULSE_12_5);
+		audioWaveform(AUDIO_CHANNEL_TRIANGLE, AUDIO_WAVEFORM_TRIANGLE);
+		audioWaveform(AUDIO_CHANNEL_NOISE, AUDIO_WAVEFORM_NOISE_LONG);
 
-	alSourcef(			//	音量を調整
-		sid,			//	上で作ったsidを設定
-		AL_GAIN,		//	パラメーター(AL_GAIN : 音量)
-		.1f);			//	0.1f
+		audioFreq(AUDIO_CHANNEL_PULSE0, DEFAULT_FREQ);
+		audioFreq(AUDIO_CHANNEL_PULSE1, DEFAULT_FREQ);
+		audioFreq(AUDIO_CHANNEL_TRIANGLE, DEFAULT_FREQ);
+		audioFreq(AUDIO_CHANNEL_NOISE, audioIndexToFreq(8));
+	}
+	//	=============================
 
 	return 0;
 }
 
-void audioWaveform(int _waveform)
+void audioWaveform(int _channel, int _waveform)
 {
-	waveform = _waveform;
+	channels[_channel].waveform = _waveform;
 
-	alSourcei(							//	波形データを設定
-		sid,							//	sid
-		AL_BUFFER,						//	パラメーター(AL_BUFFER : バッファーを設定する)
-		buffers[waveform]);				//	waveformの現在の番号のパルス波を設定
+	alSourcei(												//	波形データを設定
+		channels[_channel].sid,								//	sid
+		AL_BUFFER,											//	パラメーター(AL_BUFFER : バッファーを設定する)
+		buffers[channels[_channel].waveform]);				//	waveformの現在の番号のパルス波を設定
 }
 
-void audioLength(unsigned int _millis)
+void audioLength(int _channel, unsigned int _millis)
 {
-	length = _millis;
+	channels[_channel].length = _millis;
 }
 
-void audioDecay(float _decay)
+void audioDecay(int _channel, float _decay)
 {
-	decay = _decay;
+	channels[_channel].decay = _decay;
 }
 
-void audioSweep(float _sweep, float _freqEnd)
+void audioSweep(int _channel, float _sweep, float _freqEnd)
 {
-	sweep = _sweep;
-	freqEnd = _freqEnd;
+	channels[_channel].sweep = _sweep;
+	channels[_channel].freqEnd = _freqEnd;
 }
 
-void audioFreq(float _freq)
+void audioFreq(int _channel, float _freq)
 {
-	freqStart = _freq;
+	channels[_channel].freqStart = _freq;
 
-	alSourcef(							//	ピッチを設定
-		sid,							//	sid
-		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-		freq);							//	周波数 / デフォルト周波数 = ピッチ
+	alSourcef(													//	ピッチを設定
+		channels[_channel].sid,									//	sid
+		AL_PITCH,												//	パラメーター(AL_PITCH : ピッチ)
+		channels[_channel].freq);								//	周波数 / デフォルト周波数 = ピッチ
 }
 
 float audioIndexToFreq(int _index)
 {
-	int divisorTable[] = {		//	ファミコンの除数テーブル(16)
+	int divisorTable[] = {										//	ファミコンの除数テーブル(16)
 		4,8,16,32,64,96,128,160,202,254,380,508,762,1016,2034,4068
 	};
 
-	return 1789772.5f / divisorTable[_index];	//	周波数を返す(1789772.5f = ファミコンのCPUの周波数)
+	return 1789772.5f / divisorTable[_index];					//	周波数を返す(1789772.5f = ファミコンのCPUの周波数)
 }
 
-void audioPlay()
+void audioPlay(int _channel)
 {
-	alSourcef(							//	音量を調整
-		sid,							//	sid
-		AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
-		gain = DEFAULT_GAIN);			//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
+	alSourcef(													//	音量を調整
+		channels[_channel].sid,									//	sid
+		AL_GAIN,												//	パラメーター(AL_GAIN : 音量)
+		channels[_channel].gain = DEFAULT_GAIN);				//	デフォルト値を設定しつつ(0.1f)gainにも最初の値として保存
 
-	freq = freqStart;					//	開始周波数を設定
+	channels[_channel].freq = channels[_channel].freqStart;		//	開始周波数を設定
 
-	alSourcef(							//	ピッチを設定
-		sid,							//	sid
-		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-		freq);							//	周波数 / デフォルト周波数 = ピッチ
+	alSourcef(													//	ピッチを設定
+		channels[_channel].sid,									//	sid
+		AL_PITCH,												//	パラメーター(AL_PITCH : ピッチ)
+		channels[_channel].freq);								//	周波数 / デフォルト周波数 = ピッチ
 
-	alSourcePlay(sid);					//	再生
-	start = clock();					//	再生した時刻を保存
+	alSourcePlay(channels[_channel].sid);						//	再生
+	channels[_channel].start = clock();							//	再生した時刻を保存
 }
 
-void audioStop()
+void audioStop(int _channel)
 {
-	alSourceStop(sid);	//	停止
+	alSourceStop(channels[_channel].sid);						//	停止
 }
 
 void audioUpdate()
 {
-	if ((length > 0) && (clock() - start >= length))
+	for (int i = 0; i < AUDIO_CHANNEL_MAX; i++)
 	{
-		audioStop();
-	}
-
-	if ((decay != 00) && (decay < 1))
-	{
-		alSourcef(							//	音量を調整
-			sid,							//	上で作ったsidを設定
-			AL_GAIN,						//	パラメーター(AL_GAIN : 音量)
-			gain *= decay);					//	現在の音量から減衰率をかけた値を入れる
-	}
-
-	if (sweep != 0)
-	{
-		freq *= sweep;
-		if (freqEnd != 0) {
-			if (
-				(sweep >= 1 && freq >= freqEnd) ||		//	高くなる場合
-				(sweep <= 1 && freq <= freqEnd)			//	低くなる場合
-				)
-			{
-				audioStop();
-			}
+		if ((channels[i].length > 0) && (clock() - channels[i].start >= channels[i].length))
+		{
+			audioStop(i);
 		}
-		alSourcef(							//	ピッチを設定
-			sid,							//	sid
-			AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
-			freq);							//	周波数 / デフォルト周波数 = ピッチ
+
+		if ((channels[i].decay != 00) && (channels[i].decay < 1))
+		{
+			alSourcef(										//	音量を調整
+				channels[i].sid,							//	上で作ったsidを設定
+				AL_GAIN,									//	パラメーター(AL_GAIN : 音量)
+				channels[i].gain *= channels[i].decay);		//	現在の音量から減衰率をかけた値を入れる
+		}
+
+		if (channels[i].sweep != 0)
+		{
+			channels[i].freq *= channels[i].sweep;
+			if (channels[i].freqEnd != 0) {
+				if (
+					(channels[i].sweep >= 1 && channels[i].freq >= channels[i].freqEnd) ||		//	高くなる場合
+					(channels[i].sweep <= 1 && channels[i].freq <= channels[i].freqEnd)			//	低くなる場合
+					)
+				{
+					audioStop(i);
+				}
+			}
+			alSourcef(										//	ピッチを設定
+				channels[i].sid,							//	sid
+				AL_PITCH,									//	パラメーター(AL_PITCH : ピッチ)
+				channels[i].freq);							//	周波数 / デフォルト周波数 = ピッチ
+		}
+
 	}
 
-	ALenum error = alGetError();			//	エラーの取得
-	if (error != AL_NO_ERROR)				//	エラーがあった場合(AL_NO_ERROR : エラーがない)
+	ALenum error = alGetError();							//	エラーの取得
+	if (error != AL_NO_ERROR)								//	エラーがあった場合(AL_NO_ERROR : エラーがない)
 	{
 		printf("%s\n", alGetString(error));
 	}
