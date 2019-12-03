@@ -107,7 +107,7 @@ int audioInit()
 			noise,									//	波形データ
 			sizeof noise,							//	波形データのサイズ
 			1);										//	周波数(音の高さ)は後で決めるので1
-		
+
 	}
 	//	====================================
 
@@ -189,6 +189,15 @@ void audioFreq(float _freq)
 		sid,							//	sid
 		AL_PITCH,						//	パラメーター(AL_PITCH : ピッチ)
 		freq);							//	周波数 / デフォルト周波数 = ピッチ
+}
+
+float audioIndexToFreq(int _index)
+{
+	int divisorTable[] = {		//	ファミコンの除数テーブル(16)
+		4,8,16,32,64,96,128,160,202,254,380,508,762,1016,2034,4068
+	};
+
+	return 1789772.5f / divisorTable[_index];	//	周波数を返す(1789772.5f = ファミコンのCPUの周波数)
 }
 
 void audioPlay()

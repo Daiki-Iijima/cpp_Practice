@@ -17,6 +17,7 @@ void audioLength(unsigned int _millis);
 void audioDecay(float _decay);
 void audioSweep(float _sweep, float _freqEnd = 0);
 void audioFreq(float _freq);
+float audioIndexToFreq(int _index);
 void audioPlay();
 void audioStop();
 void audioUpdate();

@@ -126,8 +126,8 @@ void keybord(unsigned char key, int x, int y)
 		break;
 	case 'p':
 		audioStop();
-		audioWaveform(AUDIO_WAVEFORM_NOISE_SHORT);
-		audioFreq(1789772.5f / 202);	//	1789772.5f = ファミコンのCPUの周波数
+		audioWaveform(AUDIO_WAVEFORM_NOISE_LONG);
+		audioFreq(audioIndexToFreq(14));	//	1789772.5f = ファミコンのCPUの周波数
 		//audioDecay(.9f);
 		//audioSweep(.9f, 1789772.5f / 4068);
 		audioPlay();
