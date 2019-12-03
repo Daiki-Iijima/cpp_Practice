@@ -58,7 +58,7 @@ void display(void)
 	//	=====================================
 
 	//	=== 疑似乱数生成アルゴリズム ===
-	static int shiftReg = 1 << 14;
+	static int shiftReg = 1 << 14;					//	シフトレジスターを定義
 	int result = (shiftReg ^ (shiftReg >> 1)) & 1;	//	XOR演算をする
 	shiftReg >>= 1;									//	レジスタの値を右に1シフトさせる
 	shiftReg |= result << 14;						//	or演算して計算結果を14ビット目に代入
@@ -123,6 +123,14 @@ void keybord(unsigned char key, int x, int y)
 	case 0x1b:			//	Escapeキーで終了
 		exit(0);
 		break;
+	case 'p':
+		audioStop();
+		audioWaveform(AUDIO_WAVEFORM_NOISE_LONG);
+		audioFreq(1789772.5f / 202);	//	1789772.5f = ファミコンのCPUの周波数
+		//audioDecay(.9f);
+		//audioSweep(.9f, 1789772.5f / 4068);
+		audioPlay();
+	break;
 	}
 
 	/*if ((key >= '0') && (key <= '4'))
