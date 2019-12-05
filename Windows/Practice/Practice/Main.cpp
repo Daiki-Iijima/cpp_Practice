@@ -36,31 +36,15 @@ void display(void)
 	//	======= •¶Žš—ñ‚Ì•`‰æ ======
 	fontBegin();
 	{
-		fontHeight(FONT_DEFAULT_HEIGHT / 2);
-		fontWeight(fontGetWeightMax() / 2);
+		fontHeight(FONT_DEFAULT_HEIGHT );
+		fontWeight(fontGetWeightMin());
 		fontFont(FONT_FONT_ROMAN);
 
-		char str[] = "abcdefgABCDEFG";
-		float x = 0, y = 0, h = fontGetLineHeight();
-		fontPosition(x, y);
+		fontPosition(0, 0);
+		fontDraw("abcdefgABCDEFG\n");
+		fontDraw("abcdefgABCDEFG\n");
+		fontDraw("abcdefgABCDEFG\n");
 
-		fontDraw(str);
-
-		fontPosition(x, y += h);
-		fontDraw("Length : %d", (int)fontGetLength((unsigned char *)str));
-
-		fontPosition(x, y += h);
-		x = (windowSize.x - fontGetLength((unsigned char *)str)) / 2;
-		
-		fontDraw("x : %d", (int)x);
-
-		fontPosition(x, y += h);
-		fontDraw("abcdefgABCDEFG");
-
-		fontFont(FONT_FONT_MONO_ROMAN);
-		x = (windowSize.x - fontGetLength((unsigned char *)str)) / 2;
-		fontPosition(x, y += h);
-		fontDraw("abcdefgABCDEFG");
 
 	}
 	fontEnd();

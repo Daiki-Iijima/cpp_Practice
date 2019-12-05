@@ -2,7 +2,8 @@
 
 //	- わかりやすいようにfontを枕につける -
 
-#define FONT_DEFAULT_HEIGHT (100.f)					//	フォント高さ(OpenGLのストロークフォントのサイズが100)
+#define FONT_DEFAULT_HEIGHT (119.05f)					//	フォント高さ(OpenGLのリファレンスによる)
+#define FONT_DEFAULT_LINE_SPACE (33.33)					//	フォントの行間
 
 enum {												//	フォント
 	FONT_FONT_ROMAN,
