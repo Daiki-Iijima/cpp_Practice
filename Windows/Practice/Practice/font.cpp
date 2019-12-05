@@ -8,6 +8,8 @@
 
 using namespace glm;
 
+static vec2 screenSize = { 256, 256 };
+
 static void* font = GLUT_STROKE_ROMAN;	//	フォント
 static vec2 position;
 static vec2 origin;
@@ -22,15 +24,9 @@ void fontBegin()
 	glMatrixMode(GL_PROJECTION);		//	射影モードを変更する
 	glLoadIdentity();					//	前回の射影行列が残らないように行列の初期化
 
-	GLint viewport[4];					//	ビューポートの情報を保存する
-	glGetIntegerv(						//	ビューポートの情報を取得する
-		GL_VIEWPORT,
-		viewport
-	);
-
 	gluOrtho2D(							//	2次元空間を定義(Ortho:正射影)
-		0, viewport[2],					//	left,right
-		viewport[3], 0					//	bottom,top
+		0, screenSize.x,					//	left,right
+		screenSize.y, 0					//	bottom,top
 	);
 
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
@@ -60,6 +56,11 @@ void fontFont(int _font)
 		font = GLUT_STROKE_MONO_ROMAN;			//	等間隔のフォント
 		break;
 	}
+}
+
+void fontScreenSize(float _width, float _height)
+{
+	screenSize = vec2(_width, _height);
 }
 
 void fontPosition(float _x, float _y)

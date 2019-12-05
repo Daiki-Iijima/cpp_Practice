@@ -16,6 +16,8 @@ void fontEnd();										//	フォント描画終了
 
 void fontFont(int _font);							//	フォントを設定
 
+void fontScreenSize(float _width, float _height);	//	画面サイズを設定
+
 void fontPosition(float _x, float _y);				//	フォント位置
 void fontHeight(float _size);						//	フォントの高さを設定
 

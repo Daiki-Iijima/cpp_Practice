@@ -9,9 +9,10 @@
 
 #include "Rect.h"
 
-using namespace glm;
+#define SCREEN_WIDTH (256)
+#define SCREEN_HEIGHT (256)
 
-ivec2 windowSize = { 800,600 };	//	ウィンドウのサイズを定義
+using namespace glm;
 
 bool keys[256];					//	どのキーが押されているかを保持する
 
@@ -25,27 +26,46 @@ void display(void)
 	glMatrixMode(GL_PROJECTION);	//	射影モードを変更する
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 	gluOrtho2D(						//	2次元空間を定義(Ortho:正射影)
-		0, windowSize.x,				//	left,right
-		windowSize.y, 0				//	bottom,top
+		0, SCREEN_WIDTH,				//	left,right
+		SCREEN_HEIGHT, 0				//	bottom,top
 	);
 
 	glMatrixMode(GL_MODELVIEW);		//	モデルビュー行列モードに切り替え
 	glLoadIdentity();				//	前回の射影行列が残らないように行列の初期化
 
+	int s = 8;	//	タイルのサイズ
+
+	for (int i = 0; i < SCREEN_HEIGHT / s; i++)
+	{
+		for (int j = 0; j < SCREEN_WIDTH / s; j++)
+		{
+			glColor3ub(										//	色を設定
+				0xff - 0xff * j / (SCREEN_WIDTH / s - 1),
+				0xff * j / (SCREEN_WIDTH / s - 1),
+				0xff * i / (SCREEN_WIDTH / s - 1)
+			);
+			glRectfv(										//	四角を描画
+				(GLfloat *)&vec2(j*s, i*s),
+				(GLfloat *)&(vec2(j*s, i*s) + vec2(s - 1, s - 1))//	s-1なのは間をあけるため
+			);
+		}
+	}
 
 	//	======= 文字列の描画 ======
 	fontBegin();
 	{
-		fontHeight(FONT_DEFAULT_HEIGHT );
-		fontWeight(fontGetWeightMin());
+		fontHeight(7);
+		fontWeight(2);
 		fontFont(FONT_FONT_ROMAN);
-
-		fontPosition(0, 0);
-		fontDraw("abcdefgABCDEFG\n");
-		fontDraw("abcdefgABCDEFG\n");
-		fontDraw("abcdefgABCDEFG\n");
-
-
+		glColor3ub(0xff, 0xff, 0xff);
+		for (int i = 0; i < SCREEN_HEIGHT / s; i++)
+		{
+			for (int j = 0; j < SCREEN_WIDTH / s; j++)
+			{
+				fontPosition(j*s+1, i*s);
+				fontDraw("%x", (i*SCREEN_WIDTH + j) % 0x10);
+			}
+		}
 	}
 	fontEnd();
 
@@ -70,8 +90,6 @@ void reshape(int width, int height)
 		0, 0,			//	座標(x,y)
 		width, height	//	サイズ(w,h)
 	);
-
-	windowSize = ivec2(width, height);	//	リサイズされた値でサイズ定数を書き換える
 }
 
 void keybord(unsigned char key, int x, int y)
@@ -130,7 +148,13 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GL_DOUBLE);			//	ダブルバッファを使用する(やらない場合シングルバッファ)
 
 	glutInitWindowPosition(640, 0);			//	Window位置(やらなくてもいい)
-	glutInitWindowSize(windowSize.x, windowSize.y);			//	Window大きさ(やらなくてもいい)
+
+	{
+		int height = 720 - 32;				//	特に根拠はない
+		int width = height * 4 / 3;			//	4:3の比率にする
+
+		glutInitWindowSize(width, height);	//	Window大きさ(やらなくてもいい)
+	}
 
 	glutCreateWindow("多々タイトル");		//	Windowのタイトル設定
 
