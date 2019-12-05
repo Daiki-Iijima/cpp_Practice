@@ -39,7 +39,14 @@ void display(void)
 		fontHeight(FONT_DEFAULT_HEIGHT);
 		fontWeight(fontGetWeightMax());
 		fontPosition(fontGetWeight() * 2, fontGetWeight() * 2);
+		fontFont(FONT_FONT_ROMAN);
+		for (int i = 0; i < 128; i++)
+		{
+			if (keys[i])
+				fontDraw("%c\n", i);	//	‰Ÿ‚³‚ê‚Ä‚¢‚éƒL[‚ð•`‰æ‚·‚é
+		}
 
+		fontFont(FONT_FONT_MONO_ROMAN);
 		for (int i = 0; i < 128; i++)
 		{
 			if (keys[i])

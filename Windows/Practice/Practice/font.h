@@ -2,10 +2,19 @@
 
 #define FONT_DEFAULT_HEIGHT (100.f)				//	フォント高さ(OpenGLのストロークフォントのサイズが100)
 
+enum {
+
+	FONT_FONT_ROMAN,
+	FONT_FONT_MONO_ROMAN,
+	FONT_FONT_MAX,
+};
+
 //	わかりやすいようにfontを枕につける
 
 void fontBegin();	//	フォント描画開始
 void fontEnd();		//	フォント描画終了
+
+void fontFont(int _font);			//	フォントを設定
 
 void fontPosition(float _x, float _y);		//	フォント位置
 void fontHeight(float _size);				//	フォントの高さを設定

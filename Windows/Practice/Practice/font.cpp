@@ -6,7 +6,7 @@
 #include "glm/glm.hpp"
 #include "glut.h"
 
-#define FONT GLUT_STROKE_ROMAN
+static void* font = GLUT_STROKE_ROMAN;	//	フォント
 
 using namespace glm;
 
@@ -53,6 +53,19 @@ void fontEnd()
 	glPopAttrib();						//	fontBeginで保持した描画属性を戻す
 }
 
+void fontFont(int _font)
+{
+	switch (_font)				//	番号によってフォントを切り替える
+	{
+	case FONT_FONT_ROMAN:
+		font = font = GLUT_STROKE_ROMAN;
+		break;
+	case FONT_FONT_MONO_ROMAN:
+		font = GLUT_STROKE_MONO_ROMAN;			//	等間隔のフォント
+		break;
+	}
+}
+
 void fontPosition(float _x, float _y)
 {
 	origin = position = vec2(_x, _y);
@@ -71,7 +84,7 @@ float fontGetHeight()
 float fontGetWidth(int _character)
 {
 	return glutStrokeWidth(				//	文字の幅を取得
-		FONT,							//	使用しているフォント
+		font,							//	使用しているフォント
 		_character						//	対象の文字
 	)* height / FONT_DEFAULT_HEIGHT;	//	文字にかかっている倍率をかける
 }
@@ -137,7 +150,7 @@ void fontDraw(const char *_format, ...)
 				float s = height / FONT_DEFAULT_HEIGHT;
 				glScalef(s, -s, s);									//	大きさを変更
 
-				glutStrokeCharacter(FONT, *p);						//	文字を描く
+				glutStrokeCharacter(font, *p);						//	文字を描く
 				position.x += fontGetWidth(*p);						//	上で描いた文字分の座標を動かしておく(次に描画する文字が重ならないように)
 			}
 			glPopMatrix();											//	元に戻す
