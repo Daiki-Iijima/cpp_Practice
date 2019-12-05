@@ -6,17 +6,13 @@
 #include "glm/glm.hpp"
 #include "glut.h"
 
-static void* font = GLUT_STROKE_ROMAN;	//	フォント
-
 using namespace glm;
 
+static void* font = GLUT_STROKE_ROMAN;	//	フォント
 static vec2 position;
 static vec2 origin;
 static float height = FONT_DEFAULT_HEIGHT;
 static float weight = 1;
-
-//static unsigned char color[3];
-
 
 void fontBegin()
 {
@@ -76,17 +72,30 @@ void fontHeight(float _height)
 	height = _height;
 }
 
-float fontGetHeight()
-{
-	return height;
-}
-
 float fontGetWidth(int _character)
 {
 	return glutStrokeWidth(				//	文字の幅を取得
 		font,							//	使用しているフォント
 		_character						//	対象の文字
 	)* height / FONT_DEFAULT_HEIGHT;	//	文字にかかっている倍率をかける
+}
+
+float fontGetLength(const unsigned char* _string)
+{
+	return glutStrokeLength(	//	文字列の幅を取得
+		font,					//	長さを知りたいフォント
+		_string					//	文字列
+	) * height / FONT_DEFAULT_HEIGHT;
+}
+
+float fontGetHeight()
+{
+	return height;
+}
+
+float fontGetLineHeight()
+{
+	return height * 1.5f;
 }
 
 float fontGetWeightMin()
@@ -162,7 +171,7 @@ void fontDraw(const char *_format, ...)
 	if (*p == '\n')											//	改行コードで終了していた場合
 	{
 		position.x = origin.x;								//	xの位置は最初にセットした位置に戻す
-		position.y += height + weight * 2;					//	文字描画位置を下にずらす
+		position.y += fontGetLineHeight();					//	文字描画位置を下にずらす
 
 		fontDraw(++p);										//	再度描画命令を出す(再帰処理)
 	}

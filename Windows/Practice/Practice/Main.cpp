@@ -36,22 +36,32 @@ void display(void)
 	//	======= •¶Žš—ñ‚Ì•`‰æ ======
 	fontBegin();
 	{
-		fontHeight(FONT_DEFAULT_HEIGHT);
-		fontWeight(fontGetWeightMax());
-		fontPosition(fontGetWeight() * 2, fontGetWeight() * 2);
+		fontHeight(FONT_DEFAULT_HEIGHT / 2);
+		fontWeight(fontGetWeightMax() / 2);
 		fontFont(FONT_FONT_ROMAN);
-		for (int i = 0; i < 128; i++)
-		{
-			if (keys[i])
-				fontDraw("%c\n", i);	//	‰Ÿ‚³‚ê‚Ä‚¢‚éƒL[‚ð•`‰æ‚·‚é
-		}
+
+		char str[] = "abcdefgABCDEFG";
+		float x = 0, y = 0, h = fontGetLineHeight();
+		fontPosition(x, y);
+
+		fontDraw(str);
+
+		fontPosition(x, y += h);
+		fontDraw("Length : %d", (int)fontGetLength((unsigned char *)str));
+
+		fontPosition(x, y += h);
+		x = (windowSize.x - fontGetLength((unsigned char *)str)) / 2;
+		
+		fontDraw("x : %d", (int)x);
+
+		fontPosition(x, y += h);
+		fontDraw("abcdefgABCDEFG");
 
 		fontFont(FONT_FONT_MONO_ROMAN);
-		for (int i = 0; i < 128; i++)
-		{
-			if (keys[i])
-				fontDraw("%c\n", i);	//	‰Ÿ‚³‚ê‚Ä‚¢‚éƒL[‚ð•`‰æ‚·‚é
-		}
+		x = (windowSize.x - fontGetLength((unsigned char *)str)) / 2;
+		fontPosition(x, y += h);
+		fontDraw("abcdefgABCDEFG");
+
 	}
 	fontEnd();
 
