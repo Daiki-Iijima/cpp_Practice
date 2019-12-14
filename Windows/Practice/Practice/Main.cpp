@@ -34,13 +34,13 @@ void display(void)
 
 	//	=== テクスチャの読み込み ===
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);							//	透過有効
-	glBlendFunc(								//	透過処理のきめ文句
-		GL_SRC_ALPHA,
-		GL_ONE_MINUS_SRC_ALPHA
-	);
+	//glEnable(GL_BLEND);							//	透過有効
+	//glBlendFunc(								//	透過処理のきめ文句
+	//	GL_SRC_ALPHA,
+	//	GL_ONE_MINUS_SRC_ALPHA
+	//);
 
-	//Rect(vec2(0, 0), vec2(256, 256)).draw();		//	描画
+	Rect(vec2(256, 256)).draw();		//	描画
 
 	//	============================
 
@@ -145,6 +145,8 @@ int main(int argc, char *argv[])
 	}
 
 	glutCreateWindow("多々タイトル");		                //	Windowのタイトル設定
+
+	texFromBMP("test1.bmp");
 
 	glutDisplayFunc(display);				                //	描画が必要になったら呼ばれるコールバックの設定
 

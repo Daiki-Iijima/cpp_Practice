@@ -7,6 +7,13 @@ Rect::Rect()
 
 }
 
+Rect::Rect(vec2 const& _size)
+	:m_position(vec2(0,0))
+	, m_size(_size)
+{
+
+}
+
 Rect::Rect(vec2 const& _position, vec2 const& _size)
 	:m_position(_position)
 	, m_size(_size)
